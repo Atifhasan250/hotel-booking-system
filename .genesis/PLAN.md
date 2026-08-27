@@ -151,3 +151,8 @@ product-market evidence. Rejected for Release 1; module contracts keep later ext
   remote-asset inventory, design-preservation governance, and explicit non-bookable Tour/Car presentation. Local
   non-build checks passed. A fresh verifier rejected inconsistent future-service presentation, the maker corrected
   every cited gap, and independent re-verification then returned `APPROVE`. M0 is complete; next is M1 pre-flight.
+- 2026-08-27 — M1 implemented secure identity/session lifecycles, deny-by-default tenant authorization, actor-aware
+  transaction-coupled audit, abuse controls, real Mongo replica/standalone evidence, noindex auth UI, and reproducible
+  Playwright desktop/tablet/mobile keyboard coverage. After regression-first accessibility corrections, fresh
+  independent verification returned `APPROVE` with no P0/P1 finding. The owner explicitly authorized completion;
+  M1 is complete and the next governed boundary is M2 existence pre-flight.
