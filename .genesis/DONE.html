@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DONE — Book My Room</title><style>
+:root{--bg:#0c130e;--card:#152019;--line:#304034;--ink:#eef5eb;--mut:#9baa9c;--lime:#dfff51;--warn:#ffc857}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 system-ui,sans-serif}.wrap{max-width:1100px;margin:auto;padding:34px 22px 90px}
+h1{margin:0;font-size:30px}h2{font-size:20px;margin:34px 0 12px;border-bottom:1px solid var(--line);padding-bottom:7px}.sub,.note{color:var(--mut)}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:17px 19px;margin:12px 0}.locked{border-left:4px solid var(--warn)}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;padding:9px;border-bottom:1px solid var(--line)}th{color:var(--mut)}code{background:#253128;padding:2px 6px;border-radius:5px}.todo{color:var(--warn)}.future{color:var(--mut)}
+.gate{padding:7px 0}.gate:before{content:'☐';color:var(--lime);margin-right:9px}.links a{color:var(--lime);margin-right:14px}
+</style></head><body><main class="wrap">
+<h1>DONE — Book My Room</h1><p class="sub">Human-readable completion contract · initialized 2026-08-27 · detailed truth lives in the linked canonical files.</p>
+
+<h2>Locked outcome</h2><section class="card locked"><p>Ship a secure, scalable, multi-district Bangladesh stay marketplace on <b>bookmyroom.site</b> where customers search real availability, compare and book with EPS; vendors operate approved inventory and earnings; admins govern marketplace, finance, promotion, content and reports.</p>
+<p><b>Stack:</b> existing Next.js App Router + TypeScript, MongoDB, ImageKit, provider adapters. <b>Architecture:</b> modular monolith. <b>Visual baseline:</b> preserve/evolve the supplied homepage.</p>
+<p><b>Release 1:</b> Hotel, Resort, Eco Resort, Homestay, Cottage, Villa. <b>Future:</b> Tour, car, guide, national bus, domestic flight, mobile apps, AI recommendations, loyalty.</p></section>
+
+<h2>Binary product gates</h2><section class="card">
+<div class="gate">All supplied requirements map to verified evidence in <code>REQUIREMENTS-TRACEABILITY.md</code>.</div>
+<div class="gate">Real date/guest/room availability and atomic holds cannot oversell under concurrency.</div>
+<div class="gate">EPS official sandbox flow, verified/idempotent server events, reconciliation and refund states pass.</div>
+<div class="gate">Customer, vendor and admin experiences meet every role requirement with cross-tenant tests.</div>
+<div class="gate">Commission/earnings/invoices/refunds derive from immutable snapshots and a balanced append-only ledger.</div>
+<div class="gate">Public experience retains design direction, is responsive/WCAG 2.2 AA-targeted, data-driven and ImageKit-backed.</div>
+<div class="gate">Canonical SEO for bookmyroom.site, truthful structured data, private noindex, sitemap/robots/redirects pass.</div>
+<div class="gate">Threat model/security tests, log redaction, rate limits, session/upload/API/payment protections pass.</div>
+<div class="gate">Backups restore successfully; monitoring, alerts, jobs, runbooks, support and rollback are exercised.</div>
+<div class="gate">Non-build typecheck/lint/unit/integration/e2e suites pass and a separate verifier approves every milestone.</div>
+</section>
+
+<h2>Milestones</h2><section class="card"><table><thead><tr><th>ID</th><th>Outcome</th><th>Status</th></tr></thead><tbody>
+<tr><td>M0</td><td>Adopt frontend, tooling and verified baseline</td><td class="todo">todo</td></tr>
+<tr><td>M1</td><td>Identity, sessions, roles and tenant authorization</td><td class="todo">todo</td></tr>
+<tr><td>M2</td><td>Catalog, vendor onboarding and ImageKit</td><td class="todo">todo</td></tr>
+<tr><td>M3</td><td>Availability, rates, offers and search</td><td class="todo">todo</td></tr>
+<tr><td>M4</td><td>Public UI, property pages, accessibility and SEO</td><td class="todo">todo</td></tr>
+<tr><td>M5</td><td>Quote, hold, booking and invoice core</td><td class="todo">todo</td></tr>
+<tr><td>M6</td><td>EPS payment, confirmation and reconciliation</td><td class="todo">todo / contract needed</td></tr>
+<tr><td>M7</td><td>Customer dashboard, reviews, wishlist, cancellation</td><td class="todo">todo</td></tr>
+<tr><td>M8</td><td>Vendor operations, earnings, offers, analytics</td><td class="todo">todo</td></tr>
+<tr><td>M9</td><td>Admin, finance, promotions, subscriptions, CMS</td><td class="todo">todo</td></tr>
+<tr><td>M10</td><td>Notifications, newsletter, WhatsApp, durable jobs</td><td class="todo">todo</td></tr>
+<tr><td>M11</td><td>Security/performance/resilience/launch hardening</td><td class="todo">todo</td></tr>
+<tr><td>M12+</td><td>Future travel/mobile/AI/loyalty modules</td><td class="future">future</td></tr>
+</tbody></table><p class="note">Exact outcomes, boundaries, commands and acceptance criteria: <code>PLAN.md</code>.</p></section>
+
+<h2>Canonical files</h2><section class="card links"><a href="PROJECT-SPEC.md">Product spec</a><a href="ARCHITECTURE.md">Architecture</a><a href="DATA-MODEL.md">Data model</a><a href="QUALITY-GATES.md">Quality gates</a><a href="REQUIREMENTS-TRACEABILITY.md">Traceability</a><a href="PLAN.md">Plan</a><a href="OPEN-DECISIONS.md">Open decisions</a></section>
+</main></body></html>

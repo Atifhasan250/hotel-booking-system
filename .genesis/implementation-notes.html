@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Book My Room — implementation state</title><style>
+body{margin:0;background:#0d1510;color:#edf4ea;font:15px/1.55 system-ui,sans-serif}.wrap{max-width:1000px;margin:auto;padding:32px 22px 80px}
+h1{margin:0}h2{margin-top:30px;border-bottom:1px solid #314034;padding-bottom:6px}.muted{color:#9dac9d}.card{background:#162019;border:1px solid #314034;border-radius:12px;padding:16px;margin:12px 0}
+table{width:100%;border-collapse:collapse}th,td{text-align:left;vertical-align:top;padding:9px;border-bottom:1px solid #314034}.partial{color:#dfff51}.planned{color:#9dac9d}code{background:#253029;padding:2px 5px;border-radius:4px}
+</style></head><body><main class="wrap">
+<h1>Book My Room — implementation state</h1><p class="muted">Actual state, not desired state. Updated 2026-08-27 after M0 approval.</p>
+<section class="card"><b>Active work:</b> none; next is M1 existence pre-flight.<br><b>Blocker:</b> none for M1 pre-flight. EPS official contract blocks M6 live integration.<br><b>Verification:</b> M0 independently approved after corrected re-verification.</section>
+<h2>What exists</h2><div class="card"><table><thead><tr><th>Capability</th><th>Evidence</th><th>Status</th></tr></thead><tbody>
+<tr><td>Next.js App Router frontend</td><td><code>app/page.tsx</code>, <code>app/layout.tsx</code>, <code>app/globals.css</code>; package declares Next 16.3.3/React 19.2.8</td><td class="partial">partial</td></tr>
+<tr><td>Responsive homepage visual baseline</td><td>Hero, booking tabs/popovers, stay cards, features, destinations, car promo, testimonial, footer and reduced-motion CSS</td><td class="partial">partial</td></tr>
+<tr><td>Search interaction prototype</td><td>Location/date/guest/room selection in client state; search button remains UI-only</td><td class="partial">partial</td></tr>
+<tr><td>M0 engineering baseline</td><td>ESLint, Vitest/Testing Library, 10 tests, validated server environment contract, module/platform boundaries, integer BDT money primitive, asset inventory</td><td class="partial">verified</td></tr>
+<tr><td>Backend, database, ImageKit ownership, auth, booking, EPS, dashboards, CMS</td><td>No production implementation; later Genesis milestones only</td><td class="planned">planned</td></tr>
+</tbody></table></div>
+<h2>Known gaps</h2><div class="card"><ol><li>Sample stays, prices, reviews and destination data are hard-coded and are not availability/business truth.</li><li>Remote reference-host images and placeholder avatars remain inventoried for authorized ImageKit migration in M4.</li><li>Metadata is minimal; full SEO, public routes and private noindex policy are not implemented.</li><li>No server-side availability, pricing, booking, payment, tenancy or financial truth exists.</li><li>Lint reports 13 existing raw-image optimization warnings; integration and E2E environments are introduced by later milestones.</li></ol></div>
+<h2>Binding decisions</h2><div class="card"><p>See ADR-0001 through ADR-0005 and <code>decisions-manifest.md</code>. No deviations recorded.</p></div>
+<h2>Session log</h2><div class="card"><p><b>2026-08-27:</b> Converted supplied requirements and frontend inspection into a project-specific Genesis with explicit Release 1/future scope, milestone coverage, architecture/data/security/SEO/performance contracts and open business/provider gates.</p><p><b>2026-08-27 M0:</b> Completed existence pre-flight; added lint/test/env/platform foundations, smoke/unit coverage, remote-asset inventory and binding design-preservation rules. First independent review rejected inconsistent Tour/Car presentation; every cited gap was corrected and fresh re-verification returned <code>APPROVE</code>.</p></div>
+</main></body></html>

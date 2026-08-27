@@ -68,7 +68,7 @@ const stays = [
     place: "Khulna, Bangladesh",
     price: "৳4,500",
     image: "https://bookmyroom.site/wp-content/uploads/2026/07/Sundarbans.jpg",
-    type: "Tour",
+    type: "Eco Resort",
     rating: "4.8",
   },
   {
@@ -92,7 +92,7 @@ const destinations = [
 const featureItems = [
   ["Local stays, thoughtfully picked", "Hotels and resorts across Bangladesh, selected for comfort and character.", Sparkles],
   ["Straightforward BDT pricing", "Clear local pricing helps you compare stays and plan with confidence.", Check],
-  ["Hotels, tours & cars in one place", "Build the whole trip—from the room to the road—without switching platforms.", CarFront],
+  ["More ways to travel are coming", "Book trusted stays now; tours and cars will open only after their inventory is verified.", CarFront],
   ["Fast, secure reservations", "A simple booking flow designed to get you from searching to packing sooner.", ShieldCheck],
 ] as const;
 
@@ -141,6 +141,7 @@ export default function Home() {
   const destinationScrollRef = useRef<HTMLDivElement>(null);
 
   const visibleStays = filter === "All" ? stays : stays.filter((stay) => stay.type === filter);
+  const isFutureService = activeTab === "Tour" || activeTab === "Car";
 
   const openPopup = (key: PopupKey) => setActivePopup((current) => current === key ? null : key);
   const bookingField = (key: PopupKey, icon: ReactNode, label: string, value: string) => (
@@ -238,8 +239,8 @@ export default function Home() {
             <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
             <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
             <a href="#stays" onClick={() => setMenuOpen(false)}>Hotels</a>
-            <a href="#destinations" onClick={() => setMenuOpen(false)}>Tours</a>
-            <a href="#cars" onClick={() => setMenuOpen(false)}>Cars</a>
+            <a href="#destinations" onClick={() => setMenuOpen(false)}>Destinations</a>
+            <a href="#cars" onClick={() => setMenuOpen(false)}>Cars · Coming soon</a>
           </nav>
           <div className="nav-actions">
             <a className="partner-link" href="#footer">Become a Partner</a>
@@ -262,7 +263,7 @@ export default function Home() {
               {[
                 ["Hotel", Hotel], ["Room", BedDouble], ["Tour", MapPin], ["Car", CarFront],
               ].map(([label, Icon]) => (
-                <button key={label as string} className={activeTab === label ? "active" : ""} onClick={() => { setActiveTab(label as string); setActivePopup(null); }}>
+                <button role="tab" aria-selected={activeTab === label} key={label as string} className={activeTab === label ? "active" : ""} onClick={() => { setActiveTab(label as string); setActivePopup(null); }}>
                   <Icon size={16} /> {label as string}
                 </button>
               ))}
@@ -283,7 +284,14 @@ export default function Home() {
                   {bookingField("guests", <Users />, activeTab === "Room" ? "Guests & rooms" : "Guests", `${guests.adults + guests.children} Guests · ${guests.rooms} Room${guests.rooms > 1 ? "s" : ""}`)}
                 </>
               )}
-              <button type="button" className="search-btn"><Search size={18} /> Check availability</button>
+              <button
+                type="button"
+                className="search-btn"
+                disabled={isFutureService}
+                aria-label={isFutureService ? `${activeTab} booking coming soon` : "Check availability"}
+              >
+                {isFutureService ? <><Sparkles size={18} /> Coming soon</> : <><Search size={18} /> Check availability</>}
+              </button>
             </div>
 
             {activePopup && (
@@ -345,7 +353,7 @@ export default function Home() {
           </div>
           <div className="filter-row">
             <div className="filters">
-              {["All", "Apartment", "Resort", "Hotel", "Tour"].map((item) => (
+              {["All", "Apartment", "Resort", "Hotel", "Eco Resort"].map((item) => (
                 <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{item}</button>
               ))}
             </div>
@@ -401,7 +409,7 @@ export default function Home() {
         <section className="destinations section" id="destinations">
           <div className="section-heading split">
             <div><span className="section-kicker">VACATION SPOTS</span><h2>Top destinations,<br />closer than you think.</h2></div>
-            <div><p>From mangrove forests to tea-covered hills and coral islands, find a stay at the heart of Bangladesh&apos;s most remarkable places.</p><a href="https://bookmyroom.site/tours/" target="_blank">View all destinations <ArrowRight size={16} /></a></div>
+            <div><p>From mangrove forests to tea-covered hills and coral islands, find a stay at the heart of Bangladesh&apos;s most remarkable places.</p><span className="future-note">Destination stay pages coming soon</span></div>
           </div>
           <div className="destination-carousel">
             <div className="destination-strip" ref={destinationScrollRef}>
@@ -426,14 +434,14 @@ export default function Home() {
           <div className="award-copy">
             <span className="section-kicker light">PLAN THE WHOLE JOURNEY</span>
             <h2>Stay. Tour.<br />Drive. Discover.</h2>
-            <p>Book a room, choose a guided experience, and add the right car—all from Book My Room.</p>
+            <p>Book trusted stays today. Tour and car services will open only after their inventory is verified.</p>
             <div className="mini-destinations">
               {destinations.slice(0, 4).map(([name, image], i) => <img className={i === 0 ? "selected" : ""} key={name} src={image} alt={name} />)}
             </div>
           </div>
           <div className="floating-booking">
             <img src="https://bookmyroom.site/wp-content/uploads/2024/12/Sedan-car.jpeg" alt="Sedan car" />
-            <div className="floating-info"><span className="tiny-label">POPULAR RIDE</span><h3>Sedan Car</h3><p><Users size={13} /> 5 persons <span>·</span> 3 bags <span>·</span> Automatic</p><div><strong>৳120<small>/day</small></strong><span><Star size={13} fill="currentColor" /> 4.9</span></div><button>Book now <ArrowRight size={15} /></button></div>
+            <div className="floating-info"><span className="tiny-label">FUTURE SERVICE</span><h3>Sedan Car</h3><p><Users size={13} /> 5 persons <span>·</span> 3 bags <span>·</span> Automatic</p><div><strong>Coming soon</strong></div><button type="button" aria-label="Car service coming soon" disabled>Coming soon</button></div>
           </div>
         </section>
 
@@ -447,8 +455,8 @@ export default function Home() {
         </section>
 
         <footer id="footer">
-          <div className="footer-brand"><img src={assets.logo} alt="Book My Room" /><p>Your trusted starting point for stays, tours and drives across Bangladesh.</p></div>
-          <div><span>Explore</span><a href="#stays">Hotels</a><a href="#destinations">Tours</a><a href="#cars">Cars</a></div>
+          <div className="footer-brand"><img src={assets.logo} alt="Book My Room" /><p>Your trusted starting point for stays across Bangladesh, with more travel services coming later.</p></div>
+          <div><span>Explore</span><a href="#stays">Hotels</a><a href="#destinations">Destinations</a><a href="#cars">Cars · Coming soon</a></div>
           <div><span>Company</span><a href="#about">About us</a><a href="https://bookmyroom.site/" target="_blank">Original website</a><a href="#home">Become a partner</a></div>
           <div className="footer-cta"><span>Ready to go?</span><h3>Find your next stay.</h3><button>Start exploring <ArrowRight size={16} /></button></div>
           <p className="copyright">© 2026 Book My Room. Crafted for journeys across Bangladesh.</p>

@@ -1,20 +1,33 @@
-# Book My Room — Next.js Landing Page
+# Book My Room
 
-A responsive, interactive landing page inspired by the supplied hospitality reference and aligned with the content of [bookmyroom.site](https://bookmyroom.site).
+A Bangladesh-focused stay marketplace under Genesis-governed development. The current responsive homepage is the
+locked visual foundation; backend capabilities are introduced one milestone at a time.
 
 ## Run locally
 
 ```bash
 npm install
+npm run typecheck
+npm run lint
+npm run test
 npm run dev
 ```
 
 Then open `http://localhost:3000`.
 
-## Verification
+Copy `.env.example` to a local `.env.local` only when working on server integrations. Use isolated local/test
+MongoDB and ImageKit environments; never commit real credentials.
+
+## Non-build verification
 
 ```bash
 npm run typecheck
+npm run lint
+npm run test
 ```
 
-The booking search button is intentionally UI-only for now. Destination, date, guest and room selectors are interactive and ready to be connected to a search API later.
+Repository governance prohibits `npm run build` as a verification command. Integration and E2E scripts are added by
+the milestones that introduce those environments; a missing script is never reported as passing.
+
+The stay search is currently an interactive frontend baseline, not real availability. Tour and Car remain
+non-bookable “Coming soon” surfaces until their independently approved future milestones.

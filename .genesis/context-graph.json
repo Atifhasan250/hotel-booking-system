@@ -1,0 +1,32 @@
+{
+  "$schema": "book-my-room-context-graph-v1",
+  "project": "Book My Room",
+  "generated": "2026-08-27T00:00:00+06:00",
+  "sourceOfTruth": ["AGENTS.md", ".genesis/PROJECT-SPEC.md", ".genesis/decisions/decisions-manifest.md", ".genesis/ARCHITECTURE.md", ".genesis/DATA-MODEL.md", ".genesis/PLAN.md"],
+  "nodes": [
+    {"id":"ui-public","kind":"presentation"},{"id":"ui-customer","kind":"presentation"},{"id":"ui-vendor","kind":"presentation"},{"id":"ui-admin","kind":"presentation"},
+    {"id":"identity","kind":"domain-module"},{"id":"catalog","kind":"domain-module"},{"id":"availability","kind":"domain-module"},{"id":"pricing","kind":"domain-module"},{"id":"booking","kind":"domain-module"},{"id":"payments","kind":"domain-module"},{"id":"finance","kind":"domain-module"},{"id":"reviews","kind":"domain-module"},{"id":"content","kind":"domain-module"},{"id":"notifications","kind":"domain-module"},{"id":"audit","kind":"domain-module"},
+    {"id":"mongodb","kind":"infrastructure"},{"id":"imagekit","kind":"external-adapter"},{"id":"eps","kind":"external-adapter"},{"id":"message-providers","kind":"external-adapter"},{"id":"maps","kind":"external-adapter"}
+  ],
+  "edges": [
+    ["ui-public","catalog"],["ui-public","availability"],["ui-public","pricing"],["ui-public","content"],["ui-customer","identity"],["ui-customer","booking"],["ui-customer","reviews"],
+    ["ui-vendor","identity"],["ui-vendor","catalog"],["ui-vendor","availability"],["ui-vendor","pricing"],["ui-vendor","finance"],["ui-admin","identity"],["ui-admin","catalog"],["ui-admin","payments"],["ui-admin","finance"],["ui-admin","content"],["ui-admin","audit"],
+    ["booking","identity"],["booking","catalog"],["booking","availability"],["booking","pricing"],["booking","payments"],["booking","finance"],["booking","notifications"],["booking","audit"],["payments","eps"],["payments","finance"],["payments","notifications"],["notifications","message-providers"],["catalog","imagekit"],["catalog","maps"],
+    ["identity","mongodb"],["catalog","mongodb"],["availability","mongodb"],["pricing","mongodb"],["booking","mongodb"],["payments","mongodb"],["finance","mongodb"],["reviews","mongodb"],["content","mongodb"],["notifications","mongodb"],["audit","mongodb"]
+  ],
+  "invariants": [
+    "UI and route handlers never access MongoDB, EPS, or ImageKit directly; they call authorized application use cases.",
+    "Domain modules do not import Next.js/React or provider SDKs; infrastructure implements domain-owned ports.",
+    "Every customer/vendor/admin resource is authorized server-side and tenant scoped; deny by default.",
+    "Inventory hold/confirmation is atomic and cannot make sellable quantity negative under concurrency.",
+    "Money uses integer minor units plus currency; confirmed quote, policy, commission, and invoice snapshots are immutable.",
+    "Payment redirects are never payment truth; verified idempotent server events and provider verification decide state.",
+    "Ledger entries are append-only and balanced; historical commission/payment facts are never rewritten.",
+    "Every outbound call has timeout, redacted observability, and only safe bounded retry.",
+    "Private routes are noindex and uncached across identities; availability is revalidated before booking.",
+    "No production media hotlinks a reference host; managed property/content assets use ImageKit metadata and ownership.",
+    "Future service tabs cannot appear bookable or accept payment before their own verified milestone.",
+    "Verification never invokes npm run build, per repository governance."
+  ],
+  "freezeBoundary": "The active PLAN.md milestone boundary; changes outside it require explicit scope expansion and a logged deviation."
+}
