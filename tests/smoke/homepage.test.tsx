@@ -15,6 +15,10 @@ describe("homepage baseline", () => {
     expect(screen.getByRole("tablist", { name: "Booking type" })).toBeDefined();
     expect(screen.getByRole("button", { name: /Check availability/i })).toBeDefined();
     expect(screen.getByRole("heading", { name: /Where comfort meets discovery/i })).toBeDefined();
+    expect(screen.getAllByAltText("Book My Room")).toHaveLength(2);
+    for (const logo of screen.getAllByAltText("Book My Room")) {
+      expect(logo.getAttribute("src")).toBe("/bookmyroom-dark-no-bg.png");
+    }
   });
 
   it("keeps the stay search selectors interactive", async () => {

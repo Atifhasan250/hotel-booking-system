@@ -136,10 +136,10 @@ button {
 }
 
 .brand img {
-  width: 155px;
-  height: 62px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
+  width: 130px;
+  height: 82px;
+  object-fit: cover;
+  object-position: 50% 25%;
 }
 
 .nav-links {
@@ -1469,8 +1469,10 @@ footer {
 }
 
 .footer-brand img {
-  width: 170px;
-  filter: brightness(0) invert(1);
+  width: 225px;
+  height: 130px;
+  object-fit: cover;
+  object-position: 50% 32%;
 }
 
 .footer-brand p {
@@ -1593,7 +1595,8 @@ footer a {
   }
 
   .brand img {
-    width: 130px;
+    width: 125px;
+    height: 78px;
   }
 
   .dashboard-btn {

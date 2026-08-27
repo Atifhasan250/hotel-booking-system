@@ -24,7 +24,7 @@ import {
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 const assets = {
-  logo: "https://bookmyroom.site/wp-content/uploads/2026/06/Book-My-Room-Logo-1.png",
+  logo: "/bookmyroom-dark-no-bg.png",
   hero: "https://bookmyroom.site/wp-content/uploads/2026/06/ptcosiky3tu.jpg",
   about: "https://bookmyroom.site/wp-content/uploads/2026/06/iupgeszsm_m-1.jpg",
   award: "https://bookmyroom.site/wp-content/uploads/2026/06/Nazimgarh-Garden-Resort-2.webp",
