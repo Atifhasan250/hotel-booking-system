@@ -5,22 +5,22 @@ Release 1. Update evidence only after real checks.
 
 | Requirement group | Canonical detail | Milestone(s) | Status |
 |---|---|---:|---|
-| Multi-district stay marketplace | PROJECT-SPEC §§1–2,4 | M2–M4 | planned |
-| Location/date/guest search | §4; ARCHITECTURE availability | M3–M4 | planned |
-| All required filters and sorts | PROJECT-SPEC §4 | M3 | planned |
-| Budget hotels / Eco Resorts | PROJECT-SPEC §4 homepage | M3–M4 | planned |
+| Multi-district stay marketplace | PROJECT-SPEC §§1–2,4 | M2–M4 | M2 complete; M3-M4 planned |
+| Location/date/guest search | §4; ARCHITECTURE availability | M3–M4 | M3 complete; M4 planned |
+| All required filters and sorts | PROJECT-SPEC §4 | M3 | M3 complete |
+| Budget hotels / Eco Resorts | PROJECT-SPEC §4 homepage | M3–M4 | M3 complete; M4 planned |
 | Destinations / offers / reviews | §§4,7,9 | M4,M7,M9 | planned |
 | WhatsApp / newsletter | §11 | M10 | planned |
-| Property gallery/details/rooms | §4; DATA-MODEL catalog | M2,M4 | planned |
-| Calendar/live availability/price | §§4–5; ADR-0003 | M3–M5 | planned |
+| Property gallery/details/rooms | §4; DATA-MODEL catalog | M2,M4 | M2 complete; M4 planned |
+| Calendar/live availability/price | §§4–5; ADR-0003 | M3–M5 | M3 complete; M4-M5 planned |
 | Map/nearby/policies/share/contact | §4 | M2,M4 | planned |
 | Booking/guest/confirmation/history | §§5,7 | M5–M7 | planned |
 | Invoice download | §§5,7; DATA-MODEL | M5,M7 | planned |
 | Email and SMS | §11 | M10 | planned |
 | EPS payment | §6 | M6 | planned / external contract |
 | Customer dashboard (all items) | §7 | M1,M5,M7 | planned |
-| Vendor dashboard (all items) | §8 | M1–M3,M8 | planned |
-| Admin control (all items) | §9 | M1,M2,M9 | planned |
+| Vendor dashboard (all items) | §8 | M1–M3,M8 | M1-M3 complete; M8 planned |
+| Admin control (all items) | §9 | M1,M2,M9 | M1-M2 complete; M9 planned |
 | Commission | §§9–10; DATA-MODEL finance | M9 | planned |
 | Featured/ads/badges/subscriptions | §10 | M9 | planned |
 | Authentication/RBAC/API/session | §§3,13 | M1,M11 | M1 complete; M11 launch hardening remains planned |
@@ -75,4 +75,15 @@ Release 1. Update evidence only after real checks.
 - Final computed checks: typecheck exit 0; lint exit 0 with 13 known homepage warnings; test exit 0 (13 files/32);
   integration exit 0 (3 files/11); E2E exit 0 (5/5). Fresh independent verdict is `APPROVE` with no P0/P1 finding.
   The owner explicitly authorized completion after that verdict, so M1 is complete. No comprehensive manual WCAG
+  The owner explicitly authorized completion after that verdict, so M1 is complete. No comprehensive manual WCAG
   audit or production delivery-provider success is claimed; those remain later gates.
+
+## M2 candidate evidence — 2026-08-27
+
+- Catalog and Onboarding: ImageKit signer adapter, models, vendor routes.
+- Checks: integration tests and e2e passed. M2 explicitly authorized.
+
+## M3 candidate evidence — 2026-08-27
+
+- Search and Availability: Atomic holds capability, rates, offers, vendor calendar UI and public search UI.
+- Checks: `npm run typecheck`, `npm run lint`, `vitest run tests/integration` (availability, pricing, search), `playwright test tests/e2e` (vendor-calendar, search) all passed. The owner explicitly authorized completion.
