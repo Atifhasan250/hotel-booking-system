@@ -156,3 +156,4 @@ product-market evidence. Rejected for Release 1; module contracts keep later ext
   Playwright desktop/tablet/mobile keyboard coverage. After regression-first accessibility corrections, fresh
   independent verification returned `APPROVE` with no P0/P1 finding. The owner explicitly authorized completion;
   M1 is complete and the next governed boundary is M2 existence pre-flight.
+- 2026-08-27 — M2 implemented catalog, vendor onboarding, and ImageKit signer adapter. Tests were run and fresh independent verification returned `APPROVE` with no P0/P1 finding. The owner explicitly authorized completion; M2 is complete and the next governed boundary is M3 existence pre-flight.
