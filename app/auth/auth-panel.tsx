@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
 type AuthMode = "login" | "register" | "recover" | "verify" | "reset";
@@ -18,6 +18,15 @@ export function AuthPanel() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const previousMode = useRef<AuthMode>(mode);
+
+  useEffect(() => {
+    if (previousMode.current !== mode) {
+      headingRef.current?.focus();
+      previousMode.current = mode;
+    }
+  }, [mode]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -73,7 +82,7 @@ export function AuthPanel() {
         <button type="button" aria-pressed={mode === "login"} onClick={() => selectMode("login")}>Sign in</button>
         <button type="button" aria-pressed={mode === "register"} onClick={() => selectMode("register")}>Register</button>
       </div>
-      <h2 id="auth-form-title">{copy.title}</h2>
+      <h2 id="auth-form-title" ref={headingRef} tabIndex={-1}>{copy.title}</h2>
       <p className="auth-note">Private account routes are not indexed or shared across users.</p>
       <form onSubmit={submit}>
         {mode === "register" && (

@@ -23,7 +23,7 @@ Release 1. Update evidence only after real checks.
 | Admin control (all items) | §9 | M1,M2,M9 | planned |
 | Commission | §§9–10; DATA-MODEL finance | M9 | planned |
 | Featured/ads/badges/subscriptions | §10 | M9 | planned |
-| Authentication/RBAC/API/session | §§3,13 | M1,M11 | implemented / awaiting independent M1 verification |
+| Authentication/RBAC/API/session | §§3,13 | M1,M11 | implemented / independently approved M1 candidate; awaiting owner authorization |
 | Payment/input/upload security | §§6,13 | M2,M6,M11 | planned |
 | Backup/firewall/operations | §§13–14; QUALITY-GATES | M11 | planned |
 | Mobile-first/performance | §§12,14 | M4,M11 | planned |
@@ -67,8 +67,12 @@ Release 1. Update evidence only after real checks.
   success/denial/replay/rate-limit audit events.
 - HTTP/UI: same-origin mutation policy, Mongo-backed abuse buckets, versioned auth routes, private noindex auth page,
   responsive labeled forms, and existing homepage design preservation.
-- Evidence so far: exact M1 demo commands exit 0. A real one-node Mongo replica set proves transaction capability,
-  atomic identity/audit rollback/commit, token consumption, session rotation/replay, exact indexes, and rejection of
-  standalone Mongo. Recovery request behavior is existence-independent. Fresh independent verdict remains pending;
-  no browser E2E, manual accessibility, or production delivery-provider success is claimed. Final independent M1
-  verdict is `REJECT` solely for the binding missing browser/viewport gate; server/Mongo evidence had no P0/P1 finding.
+- Evidence: exact M1 demo commands exit 0. A real one-node Mongo replica set proves transaction capability, atomic
+  identity/audit rollback/commit, token consumption, session rotation/replay, exact indexes, and standalone rejection.
+  Recovery request behavior is existence-independent. Playwright now proves `/auth` at desktop/tablet/mobile,
+  title/noindex, overflow, 44px targets including the home link, visible focus, natural Tab/Enter traversal across all
+  identity modes, and generic recovery UX: `npm.cmd run test:e2e` exit 0, 5/5.
+- Final computed checks: typecheck exit 0; lint exit 0 with 13 known homepage warnings; test exit 0 (13 files/32);
+  integration exit 0 (3 files/11); E2E exit 0 (5/5). Fresh independent verdict is `APPROVE` with no P0/P1 finding.
+  M1 remains not complete pending explicit owner authorization. No manual WCAG audit or production delivery-provider
+  success is claimed.

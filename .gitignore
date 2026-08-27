@@ -2,5 +2,7 @@ node_modules/
 .next/
 *.tsbuildinfo
 work/
+playwright-report/
+test-results/
 .env*
 !.env.example

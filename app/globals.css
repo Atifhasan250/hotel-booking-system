@@ -68,6 +68,10 @@ button {
   position: absolute;
   top: 30px;
   left: clamp(28px, 5vw, 72px);
+  display: inline-flex;
+  min-width: 44px;
+  min-height: 44px;
+  align-items: center;
   font: 700 18px var(--display);
   letter-spacing: -.03em;
 }
