@@ -6,3 +6,7 @@ through typed public interfaces rather than another module's collections.
 
 Modules are introduced only by the active Genesis milestone. M0 intentionally creates this boundary without
 pre-building identity, catalog, booking, payments, or future travel modules.
+
+M1 establishes `identity/` and `audit/`: framework-neutral account/session/RBAC use cases and ports, with MongoDB
+adapters isolated under identity infrastructure. Route handlers remain thin and resolve current server-side grants;
+role or tenant claims are never trusted from the session cookie.

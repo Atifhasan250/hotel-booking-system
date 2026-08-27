@@ -23,7 +23,7 @@ Release 1. Update evidence only after real checks.
 | Admin control (all items) | §9 | M1,M2,M9 | planned |
 | Commission | §§9–10; DATA-MODEL finance | M9 | planned |
 | Featured/ads/badges/subscriptions | §10 | M9 | planned |
-| Authentication/RBAC/API/session | §§3,13 | M1,M11 | planned |
+| Authentication/RBAC/API/session | §§3,13 | M1,M11 | implemented / awaiting independent M1 verification |
 | Payment/input/upload security | §§6,13 | M2,M6,M11 | planned |
 | Backup/firewall/operations | §§13–14; QUALITY-GATES | M11 | planned |
 | Mobile-first/performance | §§12,14 | M4,M11 | planned |
@@ -57,3 +57,18 @@ Release 1. Update evidence only after real checks.
   authorized ImageKit migration in M4; M0 intentionally does not claim migration complete.
 - Checks: `npm.cmd run typecheck` exit 0; `npm.cmd run lint` exit 0 with 13 existing raw-image warnings;
   `npm.cmd run test` exit 0 with 3 files / 10 tests. Independent re-verification verdict: `APPROVE`.
+
+## M1 candidate evidence — 2026-08-27
+
+- Identity/session: runtime schemas, Argon2id passwords, hashed opaque database sessions, one-time contact/reset
+  tokens, atomic rotation/replay rejection, global revocation after reset, secure cookie contract, generic recovery.
+- Authorization/audit: current server-side grant resolver, explicit customer/vendor/admin/super-admin matrix,
+  cross-customer/cross-vendor denial tests, mandatory actor/target identity, and transaction-coupled append-only
+  success/denial/replay/rate-limit audit events.
+- HTTP/UI: same-origin mutation policy, Mongo-backed abuse buckets, versioned auth routes, private noindex auth page,
+  responsive labeled forms, and existing homepage design preservation.
+- Evidence so far: exact M1 demo commands exit 0. A real one-node Mongo replica set proves transaction capability,
+  atomic identity/audit rollback/commit, token consumption, session rotation/replay, exact indexes, and rejection of
+  standalone Mongo. Recovery request behavior is existence-independent. Fresh independent verdict remains pending;
+  no browser E2E, manual accessibility, or production delivery-provider success is claimed. Final independent M1
+  verdict is `REJECT` solely for the binding missing browser/viewport gate; server/Mongo evidence had no P0/P1 finding.

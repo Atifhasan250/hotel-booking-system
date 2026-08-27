@@ -244,7 +244,7 @@ export default function Home() {
           </nav>
           <div className="nav-actions">
             <a className="partner-link" href="#footer">Become a Partner</a>
-            <button className="dashboard-btn">Dashboard <ArrowRight size={15} /></button>
+            <a className="dashboard-btn" href="/auth">Dashboard <ArrowRight size={15} /></a>
             <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
               {menuOpen ? <X /> : <Menu />}
             </button>

@@ -7,6 +7,7 @@ const validEnv = {
   APP_ORIGIN: "http://localhost:3000",
   MONGODB_URI: "mongodb://localhost:27017/?replicaSet=rs0",
   MONGODB_DB_NAME: "book_my_room_test",
+  IDENTITY_TOKEN_ENCRYPTION_KEY: Buffer.alloc(32, 1).toString("base64"),
   IMAGEKIT_PUBLIC_KEY: "public_test_key",
   IMAGEKIT_PRIVATE_KEY: "private_test_key",
   IMAGEKIT_URL_ENDPOINT: "https://ik.imagekit.io/book-my-room-test",
