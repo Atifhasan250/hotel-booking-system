@@ -20,7 +20,10 @@ for (const viewport of viewports) {
     await expect(page).toHaveTitle("Sign in | Book My Room");
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, nofollow");
     await expect(page.getByRole("heading", { name: "Your Bangladesh stays, kept in one place." })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Sign in securely" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "Back to Book My Room home" })).toBeVisible();
+    await expect(page.locator(".auth-submit")).toHaveText("Sign in");
+    await expect(page.getByText("Sign in as a customer or an authorized marketplace partner.")).toHaveCount(0);
+    await expect(page.getByRole("navigation", { name: "Primary navigation" })).toHaveCount(0);
 
     const layout = await page.evaluate(() => {
       const intro = document.querySelector<HTMLElement>(".auth-intro")!.getBoundingClientRect();
@@ -55,8 +58,8 @@ test("keyboard users can traverse every identity mode", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/auth");
 
-  await tabTo(page, page.getByRole("link", { name: "Book My Room home" }));
-  await tabTo(page, page.getByRole("button", { name: "Sign in", exact: true }));
+  await tabTo(page, page.getByRole("link", { name: "Back to Book My Room home" }));
+  await tabTo(page, page.getByLabel("Account action").getByRole("button", { name: "Sign in", exact: true }));
   await tabTo(page, page.getByRole("button", { name: "Register" }));
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Create your account" })).toBeVisible();
@@ -79,7 +82,7 @@ test("keyboard users can traverse every identity mode", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Welcome back" })).toBeFocused();
   await tabTo(page, page.getByLabel("Email address"));
   await tabTo(page, page.getByLabel("Password"));
-  await tabTo(page, page.getByRole("button", { name: "Sign in securely" }));
+  await tabTo(page, page.locator(".auth-submit"));
   await tabTo(page, page.getByRole("button", { name: "Forgot password?" }));
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "Recover access" })).toBeVisible();

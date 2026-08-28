@@ -1,6 +1,6 @@
 import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import Home from "../../app/page";
 
@@ -42,6 +42,18 @@ describe("homepage baseline", () => {
       expect(screen.getByRole("button", {
         name: `${service} booking coming soon`,
       }).hasAttribute("disabled")).toBe(true);
+    }
+  });
+
+  it("ignores a pending discovery response after unmount without aborting it", () => {
+    const fetchMock = vi.fn(() => new Promise<Response>(() => undefined));
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      const view = render(<Home />);
+      view.unmount();
+      expect(fetchMock).toHaveBeenCalledWith("/api/v1/catalog/public-home", { cache: "no-store" });
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
 });

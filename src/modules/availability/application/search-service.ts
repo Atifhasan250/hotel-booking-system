@@ -2,7 +2,7 @@ import "server-only";
 
 import type { Db } from "mongodb";
 import { getMongoDatabase } from "../../../platform/db/mongo-client";
-import { getServerEnv } from "../../../platform/config/server-env";
+import { getImageKitDeliveryEnv } from "../../../platform/config/server-env";
 
 // ─── Search result shape returned by the search API ────────────────────────
 
@@ -314,7 +314,7 @@ let servicePromise: Promise<SearchService> | undefined;
 
 export function getSearchService(): Promise<SearchService> {
   servicePromise ??= getMongoDatabase()
-    .then((db) => new SearchService(db, getServerEnv().IMAGEKIT_URL_ENDPOINT))
+    .then((db) => new SearchService(db, getImageKitDeliveryEnv().IMAGEKIT_URL_ENDPOINT))
     .catch((error) => { servicePromise = undefined; throw error; });
   return servicePromise;
 }

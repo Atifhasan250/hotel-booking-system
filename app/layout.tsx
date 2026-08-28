@@ -17,6 +17,11 @@ export const metadata: Metadata = {
     description: "Discover approved stays across Bangladesh.",
   },
   twitter: { card: "summary", title: "Book My Room", description: "Discover approved stays across Bangladesh." },
+  icons: {
+    icon: "/bookmyroom-dark-no-bg.png",
+    shortcut: "/bookmyroom-dark-no-bg.png",
+    apple: "/bookmyroom-dark-no-bg.png",
+  },
   robots: canonicalProduction ? undefined : { index: false, follow: false },
 };
 

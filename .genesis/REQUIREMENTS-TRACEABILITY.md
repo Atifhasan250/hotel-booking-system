@@ -14,8 +14,8 @@ Release 1. Update evidence only after real checks.
 | Property gallery/details/rooms | §4; DATA-MODEL catalog | M2,M4 | M2 complete; M4 planned |
 | Calendar/live availability/price | §§4–5; ADR-0003 | M3–M5 | concurrent no-oversell repair independently verified; broader M3 search/calendar acceptance partial; M4 uses conservative starting-price semantics |
 | Map/nearby/policies/share/contact | §4 | M2,M4 | planned |
-| Booking/guest/confirmation/history | §§5,7 | M5–M7 | planned |
-| Invoice download | §§5,7; DATA-MODEL | M5,M7 | planned |
+| Booking/guest/confirmation/history | §§5,7 | M5–M7 | M5 domain lifecycle, guest/consent validation and immutable snapshots started; application/UI unbuilt |
+| Invoice download | §§5,7; DATA-MODEL | M5,M7 | ADR-0006 identity/numbering contract and immutable invoice snapshot tested; persistence/render/download remain partial |
 | Email and SMS | §11 | M10 | planned |
 | EPS payment | §6 | M6 | planned / external contract |
 | Customer dashboard (all items) | §7 | M1,M5,M7 | planned |
@@ -110,3 +110,30 @@ Release 1. Update evidence only after real checks.
 - Correction: the original sequential test could not support concurrent/atomic acceptance. Conditional per-night
   version writes and real concurrent replica-set tests now pass independent atomic verification. Overall M3 remains
   partial for the separately recorded search/UI/query-plan/accessibility gaps.
+
+## M4 legacy catalog migration evidence — 2026-08-28
+
+- The public WordPress API at `bookmyroom.site` returned 4 hotels, 4 rooms and 10 tour-destination terms; the import
+  also created the Dhaka hotel location destination, producing 11 staged destinations.
+- The idempotent importer archived 22 exact source payloads and inserted 4 draft properties, 4 room types, 4 integer-
+  minor-unit rate plans and 14 pending ImageKit media records. One run manifest and one pre-write recovery snapshot
+  were persisted. All 14 ImageKit delivery URLs answered successfully during read-only verification.
+- Sparse legacy content remains `DRAFT`/`UNVERIFIED`/`PENDING`; publication is still blocked on owner assignment,
+  exact policies/class/room defaults, location validation, alt-text and image-rights moderation. This is migration
+  evidence, not M4 completion or publication approval.
+- Homepage fetch cleanup no longer aborts an in-flight request during unmount. Vitest 25 files/93 tests, focused
+  Playwright public discovery 5/5, typecheck and lint pass; no build command was run.
+
+## M4 legacy catalog owner-authorized publication evidence — 2026-08-28
+
+- The owner explicitly authorized making the imported information and images visible. The guarded publisher stored a
+  pre-publication recovery snapshot and audit event, then published 4 properties and 11 destinations and approved all
+  14 imported ImageKit media records without changing the preserved `UNVERIFIED` location truth.
+- Read-only verification reports 4 properties, 4 room types, 4 rate plans, 11 destinations and 14 media records; every
+  ImageKit delivery URL is reachable. The public-home API returns the exact four legacy hotels and their integer-minor-
+  unit prices, including a truthful no-price state for Hotel 4.
+- Fresh Playwright verification proved the four hotels render on search, Hotel 1's homepage card image decodes, and its
+  detail gallery image decodes from ImageKit with no page runtime error. Focused browser checks pass 9/9; Vitest passes
+  26 files/101 tests; typecheck and lint pass. No build command was run.
+- This owner-authorized catalog publication does not declare overall M4 complete; exact ownership, policies, legal
+  address/location verification and the broader M4 acceptance surface remain separately governed follow-up work.

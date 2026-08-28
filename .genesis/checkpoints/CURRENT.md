@@ -1,12 +1,14 @@
 # CURRENT
 
-- active_loop: M3 re-verification closeout / PARTIAL
-- target: M3
+- active_loop: M5 implementation / PARTIAL
+- target: M5
 - iteration: 2
-- last_gate: M3 atomic hold correction independently APPROVED with real concurrent replica-set evidence; overall M3 completion independently REJECTED because search, total-price pagination/sorts, UI, query-plan and accessibility acceptance remain incomplete. Owner accepts M4 partial state and defers its remaining verification.
-- last_action: added conditional per-night inventory version writes, request-bound idempotency, unique booking holds, and gated distinct-key/same-key concurrency tests; full non-build suite passes
-- next_action: finish and independently verify remaining M3 acceptance before M5; M4 verification is owner-deferred, not complete. M5 product decisions must also be resolved before M5 implementation.
-- implementation_state: M0, M1, and M2 complete; M3 atomic safety is repaired but overall M3 is partial; M4 is owner-accepted for deferred progression but remains independently unapproved/incomplete; M5 has not started
-- known_external_blocker: launch districts/content/image rights/language/map decision block full M4 content acceptance; official EPS merchant API/sandbox contract required by M6
+- last_gate: no M5 completion gate yet; researched policy/tax/invoice contracts and full maker checks pass, while M3/M4 retain their recorded partial status
+- last_action: accepted ADR-0006; added versioned 48-hour cancellation fallback, approved merchant tax-profile calculation, invoice identity readiness and immutable invoice snapshot/numbering contracts
+- parallel_update: imported the live legacy WordPress catalog into MongoDB/ImageKit staging (4 properties, 4 rooms, 11 destinations, 4 rates, 14 media); fixed homepage discovery cleanup AbortError; import verification and focused Playwright pass
+- parallel_publication: owner-authorized legacy catalog publication is live (4 properties, 11 destinations, 14 approved media); public API, search, homepage cards and property gallery render Mongo/ImageKit data with 9/9 focused Playwright checks
+- next_action: add customer-authorized booking application/Mongo repository and prove atomic booking+hold+invoice sequence idempotency/concurrency, then route/UI/PDF/E2E
+- implementation_state: M0, M1, and M2 complete; M3 overall partial; M4 owner-deferred partial; M5 domain/policy/tax/invoice contracts implemented and tested but persistence/UI remain partial/unverified
+- known_external_blocker: real merchants must still supply verified legal name/address/BIN/status and approved tax/fee profiles; owner-authorized legacy M4 content is publicly visible, while exact ownership/policy/location details remain follow-up work before transactional launch; official EPS contract blocks M6
 - verification_rule: never run `npm run build`
 - last_updated: 2026-08-28 Asia/Dhaka

@@ -2,13 +2,13 @@ import "server-only";
 
 import { MongoClient, type Db } from "mongodb";
 
-import { getServerEnv } from "../config/server-env";
+import { getMongoEnv } from "../config/server-env";
 
 let clientPromise: Promise<MongoClient> | undefined;
 
 export function getMongoClient(): Promise<MongoClient> {
   if (!clientPromise) {
-    const { MONGODB_URI } = getServerEnv();
+    const { MONGODB_URI } = getMongoEnv();
     const client = new MongoClient(MONGODB_URI, { appName: "book-my-room" });
     clientPromise = client.connect().catch((error) => {
       clientPromise = undefined;
@@ -20,5 +20,5 @@ export function getMongoClient(): Promise<MongoClient> {
 
 export async function getMongoDatabase(): Promise<Db> {
   const client = await getMongoClient();
-  return client.db(getServerEnv().MONGODB_DB_NAME);
+  return client.db(getMongoEnv().MONGODB_DB_NAME);
 }

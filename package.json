@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "import:bookmyroom": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/import-bookmyroom.mts",
+    "publish:bookmyroom-import": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/publish-bookmyroom-import.mts",
+    "verify:bookmyroom-import": "node --env-file-if-exists=.env.local --env-file-if-exists=.env scripts/verify-bookmyroom-import.mts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",

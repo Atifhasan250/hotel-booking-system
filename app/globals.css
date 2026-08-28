@@ -72,6 +72,7 @@ button {
   min-width: 44px;
   min-height: 44px;
   align-items: center;
+  gap: 10px;
   font: 700 18px var(--display);
   letter-spacing: -.03em;
 }
@@ -285,7 +286,7 @@ button {
 .hero-shade {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(7, 18, 16, .52) 0%, rgba(10, 19, 16, .14) 42%, rgba(6, 16, 12, .58) 100%), linear-gradient(90deg, rgba(6, 15, 13, .22), transparent 60%);
+  background: radial-gradient(ellipse at 50% 43%, rgba(4, 13, 10, .56) 0%, rgba(4, 13, 10, .18) 45%, transparent 72%), linear-gradient(180deg, rgba(7, 18, 16, .58) 0%, rgba(8, 18, 14, .28) 43%, rgba(6, 16, 12, .66) 100%);
   z-index: -2;
 }
 
@@ -294,8 +295,9 @@ button {
   position: absolute;
   inset: 0;
   z-index: -1;
-  opacity: .13;
+  opacity: .18;
   pointer-events: none;
+  mix-blend-mode: soft-light;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
 }
 

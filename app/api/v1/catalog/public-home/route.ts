@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getPublicCatalogService } from "../../../../../src/modules/catalog/infrastructure/public-catalog-factory";
-import { propertyTypeLabel } from "../../../../../src/modules/catalog/presentation/public-format";
+import { propertyTypeLabel, publicPlaceLabel } from "../../../../../src/modules/catalog/presentation/public-format";
 
 export async function GET() {
   try {
@@ -11,7 +11,7 @@ export async function GET() {
         id: property.id,
         slug: property.slug,
         name: property.name,
-        place: `${property.area}, ${property.districtId}`,
+        place: publicPlaceLabel(property.area, property.districtId),
         propertyType: propertyTypeLabel(property.propertyType),
         startingPriceMinorUnits: property.startingPriceMinorUnits,
         rating: property.reviewSummary.average,

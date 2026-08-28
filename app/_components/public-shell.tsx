@@ -4,20 +4,11 @@ import Link from "next/link";
 import type { PublicPropertyCard as PublicPropertyCardData } from "../../src/modules/catalog/application/public-catalog";
 import { formatBdtMinorUnits, propertyTypeLabel } from "../../src/modules/catalog/presentation/public-format";
 import { PublicMedia } from "../../src/modules/catalog/presentation/public-media";
+import { SiteHeader } from "./site-header";
 import styles from "../public.module.css";
 
 export function PublicHeader() {
-  return (
-    <header className={styles.header}>
-      <Link className={styles.brand} href="/" aria-label="Book My Room home">
-        <span aria-hidden="true">B</span> Book My Room
-      </Link>
-      <nav aria-label="Public navigation">
-        <Link href="/search">Find a stay</Link>
-        <Link href="/auth">Dashboard</Link>
-      </nav>
-    </header>
-  );
+  return <SiteHeader />;
 }
 
 export function Breadcrumbs({ items }: { items: Array<{ label: string; href?: string }> }) {

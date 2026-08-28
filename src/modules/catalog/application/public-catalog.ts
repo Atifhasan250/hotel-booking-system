@@ -67,14 +67,18 @@ export class PublicCatalogService {
   async home(): Promise<PublicHomeDiscovery> {
     const [featuredProperties, destinations] = await Promise.all([
       this.repository.listFeaturedProperties(18),
-      this.repository.listPublishedDestinations(8),
+      this.repository.listPublishedDestinations(24),
     ]);
+    const homepageDestinations = [...destinations]
+      .sort((left, right) => Number(right.media.length > 0) - Number(left.media.length > 0)
+        || left.destination.name.localeCompare(right.destination.name))
+      .slice(0, 8);
 
     return {
       featuredProperties: featuredProperties.slice(0, 6),
       budgetProperties: featuredProperties.filter((property) => property.propertyClass === "BUDGET").slice(0, 6),
       ecoResorts: featuredProperties.filter((property) => property.propertyType === "ECO_RESORT").slice(0, 6),
-      destinations,
+      destinations: homepageDestinations,
     };
   }
 

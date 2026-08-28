@@ -11,9 +11,14 @@ These questions do not block M0. Resolve them before the “needed by” milesto
 
 ## Before M5/M7
 
-- Exact check-in/out, child, extra bed, couple, pet, no-show, cancellation and refund policies?
-- Which rules are property-specific, platform minimums, or admin-overridable?
-- Legal merchant name/address/tax fields, tax/fee calculation and invoice numbering rules?
+- Resolved baseline in ADR-0006 by owner instruction: property-approved policy first; otherwise 48-hour flexible
+  cancellation with a one-discounted-night late/no-show penalty; explicitly approved non-refundable fees remain
+  chargeable. Cancellation remains a request until M7 resolution.
+- Still required per property: approved check-in/out, child, extra-bed, couple, pet and any override/exception policy.
+- Resolved contract in ADR-0006: merchant-configured/admin-approved versioned tax profiles, no invented default
+  percentage, required supplier/purchaser/supply/value/tax invoice fields, and atomic merchant/year invoice sequence.
+- Still required per real merchant: verified legal name/address/BIN/registration status and approved effective tax/
+  fee rules. These are onboarding/finance facts, not platform defaults.
 
 ## Before M6
 

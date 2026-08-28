@@ -10,6 +10,18 @@ approved launch media and the assets are uploaded through the environment-scoped
 uses `public/media-awaiting-approval.svg` as an explicit local fallback and public catalog routes render only approved
 ImageKit records. This is removal evidence, not a claim that production media migration is complete.
 
+## Legacy catalog migration status — 2026-08-28
+
+The owner-requested importer fetched the live WordPress catalog and uploaded 14 hotel, room and destination images
+to the configured ImageKit environment. MongoDB now contains stable staged records for 4 properties, 4 rooms,
+11 destinations and 4 rate plans, plus the exact source archive and a recovery snapshot. Read-only verification
+confirmed all 14 ImageKit delivery URLs are reachable.
+
+This does not approve publication: imported properties are `DRAFT`, locations are `UNVERIFIED`, and media is
+`PENDING` moderation because the legacy source omits required policy/content truth and useful alt text. The logo,
+hero, general marketing collage, future-service car image, theme-demo imagery and placeholder avatars were not
+silently attached to hotel catalog records.
+
 ## Verdict
 
 `app/page.tsx` contains 19 remote image occurrences representing 17 unique image URLs: 16 occurrences from the
@@ -54,3 +66,13 @@ is introduced; never imply that placeholder people supplied genuine testimonials
   approved self-hosted path for privacy, performance, caching, and visual-metric parity before changing it.
 - Links to `bookmyroom.site`, `/hotels/`, and `/tours/` are navigation references rather than image assets. M4 must
   replace them with canonical in-app routes as those routes become real.
+
+## Owner-authorized catalog activation — 2026-08-28
+
+- Four property images, five destination images, two room images and Hotel 4's three gallery images were copied into
+  the configured ImageKit account; application rendering does not hotlink these catalog assets from WordPress.
+- All 14 delivery URLs passed a reachability check. Fresh browser checks also proved an imported homepage card,
+  search result and property-detail gallery decode successfully from ImageKit.
+- The public catalog now exposes 4 published properties and 11 published destinations, prioritizing the five
+  destinations that have imported media. The source-only hero, feature and future-service artwork listed above was
+  not represented as hotel catalog media and remains subject to its stated review action.

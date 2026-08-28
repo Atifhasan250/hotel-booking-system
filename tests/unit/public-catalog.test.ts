@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { PublicCatalogService, type PublicCatalogRepository, type PublicPropertyCard } from "../../src/modules/catalog/application/public-catalog";
-import { formatBdtMinorUnits, propertyTypeLabel } from "../../src/modules/catalog/presentation/public-format";
+import { formatBdtMinorUnits, propertyTypeLabel, publicPlaceLabel } from "../../src/modules/catalog/presentation/public-format";
 
 function card(overrides: Partial<PublicPropertyCard> = {}): PublicPropertyCard {
   return {
@@ -56,6 +56,11 @@ describe("public catalog application boundary", () => {
     expect(formatBdtMinorUnits(125_050)).toContain("1,250.50");
     expect(propertyTypeLabel("ECO_RESORT")).toBe("Eco Resort");
     expect(() => formatBdtMinorUnits(1.5)).toThrow(/safe integer/);
+  });
+
+  it("does not repeat an area when its district id is the same slug", () => {
+    expect(publicPlaceLabel("Dhaka", "dhaka")).toBe("Dhaka");
+    expect(publicPlaceLabel("Sreemangal", "moulvibazar")).toBe("Sreemangal, Moulvibazar");
   });
 });
 

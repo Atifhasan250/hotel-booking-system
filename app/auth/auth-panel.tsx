@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 type AuthMode = "login" | "register" | "recover" | "verify" | "reset";
 
 const modeCopy: Record<AuthMode, { title: string; submit: string }> = {
-  login: { title: "Welcome back", submit: "Sign in securely" },
+  login: { title: "Welcome back", submit: "Sign in" },
   register: { title: "Create your account", submit: "Create account" },
   recover: { title: "Recover access", submit: "Request recovery" },
   verify: { title: "Verify your contact", submit: "Verify contact" },

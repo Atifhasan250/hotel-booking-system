@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { parseServerEnv, serverEnvSchema } from "../../src/platform/config/env-schema";
+import {
+  parseImageKitDeliveryEnv,
+  parseMongoEnv,
+  parseServerEnv,
+  serverEnvSchema,
+} from "../../src/platform/config/env-schema";
 
 const validEnv = {
   NODE_ENV: "test",
@@ -14,6 +19,15 @@ const validEnv = {
 } satisfies NodeJS.ProcessEnv;
 
 describe("server environment contract", () => {
+  it("supports dependency-scoped public catalog configuration", () => {
+    expect(parseMongoEnv(validEnv)).toEqual({
+      MONGODB_URI: validEnv.MONGODB_URI,
+      MONGODB_DB_NAME: validEnv.MONGODB_DB_NAME,
+    });
+    expect(parseImageKitDeliveryEnv(validEnv)).toEqual({
+      IMAGEKIT_URL_ENDPOINT: validEnv.IMAGEKIT_URL_ENDPOINT,
+    });
+  });
   it("accepts an isolated local/test configuration", () => {
     expect(parseServerEnv(validEnv)).toMatchObject({
       NODE_ENV: "test",

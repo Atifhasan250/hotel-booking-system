@@ -22,6 +22,20 @@ export const serverEnvSchema = z.object({
 
 export type ServerEnv = z.infer<typeof serverEnvSchema>;
 
+export const mongoEnvSchema = serverEnvSchema.pick({ MONGODB_URI: true, MONGODB_DB_NAME: true });
+export type MongoEnv = z.infer<typeof mongoEnvSchema>;
+
+export const imageKitDeliveryEnvSchema = serverEnvSchema.pick({ IMAGEKIT_URL_ENDPOINT: true });
+export type ImageKitDeliveryEnv = z.infer<typeof imageKitDeliveryEnvSchema>;
+
 export function parseServerEnv(input: Record<string, string | undefined>): ServerEnv {
   return serverEnvSchema.parse(input);
+}
+
+export function parseMongoEnv(input: Record<string, string | undefined>): MongoEnv {
+  return mongoEnvSchema.parse(input);
+}
+
+export function parseImageKitDeliveryEnv(input: Record<string, string | undefined>): ImageKitDeliveryEnv {
+  return imageKitDeliveryEnvSchema.parse(input);
 }

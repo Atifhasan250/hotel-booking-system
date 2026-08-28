@@ -11,7 +11,6 @@ import {
   Heart,
   Hotel,
   MapPin,
-  Menu,
   Minus,
   Plus,
   Search,
@@ -23,17 +22,17 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { SiteHeader } from "./_components/site-header";
 import { formatBdtMinorUnits } from "../src/modules/catalog/presentation/public-format";
 
 const assets = {
   logo: "/bookmyroom-dark-no-bg.png",
-  hero: "/media-awaiting-approval.svg",
-  about: "/media-awaiting-approval.svg",
-  award: "/media-awaiting-approval.svg",
+  fallback: "/media-awaiting-approval.svg",
 };
 
-type StayPreview = { id: string; slug: string; name: string; place: string; propertyType: string; startingPriceMinorUnits: number | null; image: { url: string; altText: string; width: number; height: number } | null; rating: number | null; ratingCount: number };
-type DestinationPreview = { id: string; slug: string; name: string; image: { url: string; altText: string; width: number; height: number } | null; propertyCount: number };
+type MediaPreview = { url: string; altText: string; width: number; height: number };
+type StayPreview = { id: string; slug: string; name: string; place: string; propertyType: string; startingPriceMinorUnits: number | null; image: MediaPreview | null; rating: number | null; ratingCount: number };
+type DestinationPreview = { id: string; slug: string; name: string; image: MediaPreview | null; propertyCount: number };
 
 const featureItems = [
   ["Local stays, thoughtfully picked", "Hotels and resorts across Bangladesh, selected for comfort and character.", Sparkles],
@@ -71,7 +70,6 @@ const addDaysISO = (value: string, days: number) => {
 export default function Home() {
   const [activeTab, setActiveTab] = useState("Hotel");
   const [filter, setFilter] = useState("All");
-  const [menuOpen, setMenuOpen] = useState(false);
   const [liked, setLiked] = useState<number[]>([]);
   const [stays, setStays] = useState<StayPreview[]>([]);
   const [destinations, setDestinations] = useState<DestinationPreview[]>([]);
@@ -91,6 +89,19 @@ export default function Home() {
 
   const visibleStays = filter === "All" ? stays : stays.filter((stay) => stay.propertyType === filter);
   const isFutureService = activeTab === "Tour" || activeTab === "Car";
+  const approvedPageMedia = [
+    ...stays.map((stay) => stay.image),
+    ...destinations.map((destination) => destination.image),
+  ].filter((media): media is MediaPreview => media !== null);
+  const pageMedia = (index: number) => approvedPageMedia[index % Math.max(approvedPageMedia.length, 1)] ?? {
+    url: assets.fallback,
+    altText: "Approved Bangladesh travel media is temporarily unavailable",
+    width: 1600,
+    height: 1000,
+  };
+  const aboutMedia = pageMedia(4);
+  const aboutSecondaryMedia = pageMedia(5);
+  const awardMedia = pageMedia(6);
 
   const openPopup = (key: PopupKey) => setActivePopup((current) => current === key ? null : key);
   const bookingField = (key: PopupKey, icon: ReactNode, label: string, value: string) => (
@@ -163,14 +174,18 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const controller = new AbortController();
-    fetch("/api/v1/catalog/public-home", { cache: "no-store", signal: controller.signal })
+    let ignoreResult = false;
+    fetch("/api/v1/catalog/public-home", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("Public discovery unavailable");
         return response.json() as Promise<{ stays: StayPreview[]; destinations: DestinationPreview[] }>;
       })
-      .then((data) => { setStays(data.stays); setDestinations(data.destinations); })
-      .catch((error: unknown) => { if ((error as Error).name !== "AbortError") setDiscoveryError(true); });
+      .then((data) => {
+        if (ignoreResult) return;
+        setStays(data.stays);
+        setDestinations(data.destinations);
+      })
+      .catch(() => { if (!ignoreResult) setDiscoveryError(true); });
 
     const closeOnOutsideClick = (event: PointerEvent) => {
       if (bookingRef.current && !bookingRef.current.contains(event.target as Node)) setActivePopup(null);
@@ -181,7 +196,7 @@ export default function Home() {
     document.addEventListener("pointerdown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
-      controller.abort();
+      ignoreResult = true;
       document.removeEventListener("pointerdown", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
     };
@@ -190,27 +205,9 @@ export default function Home() {
   return (
     <main className="page-shell">
       <div className="site-frame">
-        <header className="nav">
-          <a className="brand" href="#home" aria-label="Book My Room home">
-            <Image src={assets.logo} alt="Book My Room" width={225} height={130} />
-          </a>
-          <nav className={menuOpen ? "nav-links open" : "nav-links"} aria-label="Primary navigation">
-            <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
-            <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
-            <a href="#stays" onClick={() => setMenuOpen(false)}>Hotels</a>
-            <a href="#destinations" onClick={() => setMenuOpen(false)}>Destinations</a>
-            <a href="#cars" onClick={() => setMenuOpen(false)}>Cars · Coming soon</a>
-          </nav>
-          <div className="nav-actions">
-            <a className="partner-link" href="#footer">Become a Partner</a>
-            <a className="dashboard-btn" href="/auth">Dashboard <ArrowRight size={15} /></a>
-            <button className="menu-btn" onClick={() => setMenuOpen(!menuOpen)} aria-label="Toggle menu">
-              {menuOpen ? <X /> : <Menu />}
-            </button>
-          </div>
-        </header>
+        <SiteHeader overlay />
         <section className="hero" id="home">
-          <Image className="hero-image" src={assets.hero} alt="Abstract forest landscape while approved Bangladesh travel media is prepared" width={1600} height={1000} sizes="100vw" preload />
+          <Image className="hero-image" src="/bookmyroom-hero.jpg" alt="A lush resort set beneath green limestone hills" width={2400} height={1800} sizes="100vw" priority />
           <div className="hero-shade" />
 
           <div className="hero-copy stagger">
@@ -329,7 +326,7 @@ export default function Home() {
           <div className="stay-grid">
             {visibleStays.map((stay, index) => (
               <article className="stay-card" key={stay.name}>
-                <Image src={stay.image?.url ?? assets.hero} alt={stay.image?.altText ?? `${stay.name} approved media awaiting upload`} width={stay.image?.width ?? 1600} height={stay.image?.height ?? 1000} sizes="(max-width: 760px) 100vw, (max-width: 1120px) 50vw, 33vw" />
+                <Image src={stay.image?.url ?? assets.fallback} alt={stay.image?.altText ?? `${stay.name} approved media awaiting upload`} width={stay.image?.width ?? 1600} height={stay.image?.height ?? 1000} sizes="(max-width: 760px) 100vw, (max-width: 1120px) 50vw, 33vw" />
                 <div className="card-shade" />
                 <button
                   className={liked.includes(index) ? "heart liked" : "heart"}
@@ -340,7 +337,7 @@ export default function Home() {
                   <span className="card-type">{stay.propertyType}</span>
                   <h3><a href={`/properties/${stay.slug}`}>{stay.name}</a></h3>
                   <p><MapPin size={13} /> {stay.place}</p>
-                  <div className="amenities"><span><Users />2–5 Guests</span><span><BedDouble />1–3 Beds</span></div>
+                  <div className="amenities"><span><Hotel />{stay.propertyType}</span><span><ShieldCheck />Published stay</span></div>
                   <div className="price-row"><strong>{stay.startingPriceMinorUnits === null ? "Choose dates" : formatBdtMinorUnits(stay.startingPriceMinorUnits)}<small>{stay.startingPriceMinorUnits === null ? "" : "/night"}</small></strong><span>{stay.ratingCount > 0 && stay.rating !== null ? <><Star size={13} fill="currentColor" /> {stay.rating}</> : "New listing"}</span></div>
                 </div>
               </article>
@@ -366,8 +363,8 @@ export default function Home() {
               ))}
             </div>
             <div className="feature-collage">
-              <Image className="collage-main" src={assets.about} alt="Abstract landscape while approved destination media is prepared" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 50vw" />
-              <Image className="collage-small" src={assets.hero} alt="Approved destination media is being prepared" width={1600} height={1000} sizes="(max-width: 760px) 50vw, 25vw" />
+              <Image className="collage-main" src={aboutMedia.url} alt={aboutMedia.altText} width={aboutMedia.width} height={aboutMedia.height} sizes="(max-width: 760px) 100vw, 50vw" />
+              <Image className="collage-small" src={aboutSecondaryMedia.url} alt={aboutSecondaryMedia.altText} width={aboutSecondaryMedia.width} height={aboutSecondaryMedia.height} sizes="(max-width: 760px) 50vw, 25vw" />
               <span className="rating-chip"><ShieldCheck size={14} /> Verified catalog only</span>
               <span className="booking-chip"><b>Real</b> listings after review</span>
             </div>
@@ -383,7 +380,7 @@ export default function Home() {
             <div className="destination-strip" ref={destinationScrollRef}>
               {destinations.map((destination, index) => (
                 <article className="destination-card featured" key={destination.id}>
-                  <Image src={destination.image?.url ?? assets.hero} alt={destination.image?.altText ?? `${destination.name} approved media awaiting upload`} width={destination.image?.width ?? 1600} height={destination.image?.height ?? 1000} sizes="(max-width: 760px) 86vw, 31vw" />
+                  <Image src={destination.image?.url ?? assets.fallback} alt={destination.image?.altText ?? `${destination.name} approved media awaiting upload`} width={destination.image?.width ?? 1600} height={destination.image?.height ?? 1000} sizes="(max-width: 760px) 86vw, 31vw" />
                   <div className="destination-overlay" />
                   <span>0{index + 1}</span>
                   <h3>{destination.name}</h3>
@@ -398,18 +395,18 @@ export default function Home() {
         </section>
 
         <section className="award-section" id="cars">
-          <Image className="award-bg" src={assets.award} alt="Abstract landscape while approved journey media is prepared" width={1600} height={1000} sizes="100vw" />
+          <Image className="award-bg" src={awardMedia.url} alt={awardMedia.altText} width={awardMedia.width} height={awardMedia.height} sizes="100vw" />
           <div className="award-shade" />
           <div className="award-copy">
             <span className="section-kicker light">PLAN THE WHOLE JOURNEY</span>
             <h2>Stay. Tour.<br />Drive. Discover.</h2>
             <p>Search approved stays today. Booking, tour and car services will open only after their safety and inventory gates are verified.</p>
             <div className="mini-destinations">
-              {destinations.slice(0, 4).map((destination, i) => <Image className={i === 0 ? "selected" : ""} key={destination.id} src={destination.image?.url ?? assets.hero} alt={destination.image?.altText ?? destination.name} width={destination.image?.width ?? 1600} height={destination.image?.height ?? 1000} sizes="72px" />)}
+              {destinations.slice(0, 4).map((destination, i) => <Image className={i === 0 ? "selected" : ""} key={destination.id} src={destination.image?.url ?? assets.fallback} alt={destination.image?.altText ?? destination.name} width={destination.image?.width ?? 1600} height={destination.image?.height ?? 1000} sizes="72px" />)}
             </div>
           </div>
           <div className="floating-booking">
-            <Image src={assets.hero} alt="Car service visual awaiting approval" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 450px" />
+            <Image src={aboutSecondaryMedia.url} alt={aboutSecondaryMedia.altText} width={aboutSecondaryMedia.width} height={aboutSecondaryMedia.height} sizes="(max-width: 760px) 100vw, 450px" />
             <div className="floating-info"><span className="tiny-label">FUTURE SERVICE</span><h3>Car rental</h3><p>Supplier, inventory and operating rules are not yet approved.</p><div><strong>Coming soon</strong></div><button type="button" aria-label="Car service coming soon" disabled>Coming soon</button></div>
           </div>
         </section>
