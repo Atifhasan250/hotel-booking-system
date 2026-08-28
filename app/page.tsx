@@ -21,79 +21,25 @@ import {
   Users,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { formatBdtMinorUnits } from "../src/modules/catalog/presentation/public-format";
 
 const assets = {
   logo: "/bookmyroom-dark-no-bg.png",
-  hero: "https://bookmyroom.site/wp-content/uploads/2026/06/ptcosiky3tu.jpg",
-  about: "https://bookmyroom.site/wp-content/uploads/2026/06/iupgeszsm_m-1.jpg",
-  award: "https://bookmyroom.site/wp-content/uploads/2026/06/Nazimgarh-Garden-Resort-2.webp",
+  hero: "/media-awaiting-approval.svg",
+  about: "/media-awaiting-approval.svg",
+  award: "/media-awaiting-approval.svg",
 };
 
-const stays = [
-  {
-    name: "Hotel 4",
-    place: "Cox's Bazar, Chattogram",
-    price: "৳0",
-    image: "https://bookmyroom.site/wp-content/uploads/2026/08/Attractive-places-in-Kuakata-1.jpg",
-    type: "Hotel",
-    rating: "4.9",
-  },
-  {
-    name: "Hotel 3",
-    place: "Dhaka, Bangladesh",
-    price: "৳1,000",
-    image: "https://bookmyroom.site/wp-content/uploads/2026/08/Chattogram-Hilltop-Panorama-Apartment385140-0.jpg",
-    type: "Apartment",
-    rating: "4.8",
-  },
-  {
-    name: "Hotel 2",
-    place: "Dhaka, Bangladesh",
-    price: "৳1,999",
-    image: "https://bookmyroom.site/wp-content/uploads/2026/08/asfges.jpg",
-    type: "Resort",
-    rating: "4.7",
-  },
-  {
-    name: "Hotel 1",
-    place: "Dhaka, Bangladesh",
-    price: "৳2,998",
-    image: "https://bookmyroom.site/wp-content/uploads/2026/08/872397871.jpg",
-    type: "Hotel",
-    rating: "4.9",
-  },
-  {
-    name: "Sundarbans Escape",
-    place: "Khulna, Bangladesh",
-    price: "৳4,500",
-    image: "https://bookmyroom.site/wp-content/uploads/2026/07/Sundarbans.jpg",
-    type: "Eco Resort",
-    rating: "4.8",
-  },
-  {
-    name: "Saint Martin Retreat",
-    place: "Saint Martin's Island",
-    price: "৳5,900",
-    image: "https://bookmyroom.site/wp-content/uploads/2026/07/Saint-Martins-Island.jpg",
-    type: "Resort",
-    rating: "4.9",
-  },
-];
-
-const destinations = [
-  ["Sundarbans", "https://bookmyroom.site/wp-content/uploads/2026/07/Sundarbans.jpg"],
-  ["Sreemangal", "https://bookmyroom.site/wp-content/uploads/2026/07/Sreemangal.jpg"],
-  ["Sajek Valley", "https://bookmyroom.site/wp-content/uploads/2026/07/Sajek-Valley-a.jpg"],
-  ["Saint Martin", "https://bookmyroom.site/wp-content/uploads/2026/07/Saint-Martins-Island.jpg"],
-  ["Ratargul", "https://bookmyroom.site/wp-content/uploads/2026/07/Ratargul-Swamp-Forest.jpg"],
-];
+type StayPreview = { id: string; slug: string; name: string; place: string; propertyType: string; startingPriceMinorUnits: number | null; image: { url: string; altText: string; width: number; height: number } | null; rating: number | null; ratingCount: number };
+type DestinationPreview = { id: string; slug: string; name: string; image: { url: string; altText: string; width: number; height: number } | null; propertyCount: number };
 
 const featureItems = [
   ["Local stays, thoughtfully picked", "Hotels and resorts across Bangladesh, selected for comfort and character.", Sparkles],
   ["Straightforward BDT pricing", "Clear local pricing helps you compare stays and plan with confidence.", Check],
-  ["More ways to travel are coming", "Book trusted stays now; tours and cars will open only after their inventory is verified.", CarFront],
-  ["Fast, secure reservations", "A simple booking flow designed to get you from searching to packing sooner.", ShieldCheck],
+  ["More ways to travel are coming", "Stay search is available; tours and cars will open only after their inventory is verified.", CarFront],
+  ["Reservation safety comes first", "Booking will open only after quote, hold, payment and confirmation safeguards are independently verified.", ShieldCheck],
 ] as const;
 
 const districts = [
@@ -127,6 +73,9 @@ export default function Home() {
   const [filter, setFilter] = useState("All");
   const [menuOpen, setMenuOpen] = useState(false);
   const [liked, setLiked] = useState<number[]>([]);
+  const [stays, setStays] = useState<StayPreview[]>([]);
+  const [destinations, setDestinations] = useState<DestinationPreview[]>([]);
+  const [discoveryError, setDiscoveryError] = useState(false);
   const [activePopup, setActivePopup] = useState<PopupKey | null>(null);
   const [location, setLocation] = useState("Dhaka");
   const [pickup, setPickup] = useState("Dhaka");
@@ -140,7 +89,7 @@ export default function Home() {
   const bookingRef = useRef<HTMLDivElement>(null);
   const destinationScrollRef = useRef<HTMLDivElement>(null);
 
-  const visibleStays = filter === "All" ? stays : stays.filter((stay) => stay.type === filter);
+  const visibleStays = filter === "All" ? stays : stays.filter((stay) => stay.propertyType === filter);
   const isFutureService = activeTab === "Tour" || activeTab === "Car";
 
   const openPopup = (key: PopupKey) => setActivePopup((current) => current === key ? null : key);
@@ -214,6 +163,15 @@ export default function Home() {
   };
 
   useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/v1/catalog/public-home", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error("Public discovery unavailable");
+        return response.json() as Promise<{ stays: StayPreview[]; destinations: DestinationPreview[] }>;
+      })
+      .then((data) => { setStays(data.stays); setDestinations(data.destinations); })
+      .catch((error: unknown) => { if ((error as Error).name !== "AbortError") setDiscoveryError(true); });
+
     const closeOnOutsideClick = (event: PointerEvent) => {
       if (bookingRef.current && !bookingRef.current.contains(event.target as Node)) setActivePopup(null);
     };
@@ -223,6 +181,7 @@ export default function Home() {
     document.addEventListener("pointerdown", closeOnOutsideClick);
     document.addEventListener("keydown", closeOnEscape);
     return () => {
+      controller.abort();
       document.removeEventListener("pointerdown", closeOnOutsideClick);
       document.removeEventListener("keydown", closeOnEscape);
     };
@@ -233,7 +192,7 @@ export default function Home() {
       <div className="site-frame">
         <header className="nav">
           <a className="brand" href="#home" aria-label="Book My Room home">
-            <img src={assets.logo} alt="Book My Room" />
+            <Image src={assets.logo} alt="Book My Room" width={225} height={130} />
           </a>
           <nav className={menuOpen ? "nav-links open" : "nav-links"} aria-label="Primary navigation">
             <a href="#home" onClick={() => setMenuOpen(false)}>Home</a>
@@ -251,7 +210,7 @@ export default function Home() {
           </div>
         </header>
         <section className="hero" id="home">
-          <img className="hero-image" src={assets.hero} alt="A scenic Bangladesh travel destination" />
+          <Image className="hero-image" src={assets.hero} alt="Abstract forest landscape while approved Bangladesh travel media is prepared" width={1600} height={1000} sizes="100vw" preload />
           <div className="hero-shade" />
 
           <div className="hero-copy stagger">
@@ -268,7 +227,7 @@ export default function Home() {
                 </button>
               ))}
             </div>
-            <div className={activeTab === "Car" ? "booking-bar car-mode" : "booking-bar"}>
+            <form action="/search" method="get" className={activeTab === "Car" ? "booking-bar car-mode" : "booking-bar"}>
               {activeTab === "Car" ? (
                 <>
                   {bookingField("pickup", <MapPin />, "Pick-up", pickup)}
@@ -284,15 +243,23 @@ export default function Home() {
                   {bookingField("guests", <Users />, activeTab === "Room" ? "Guests & rooms" : "Guests", `${guests.adults + guests.children} Guests · ${guests.rooms} Room${guests.rooms > 1 ? "s" : ""}`)}
                 </>
               )}
+              <input type="hidden" name="destination" value={location} />
+              <input type="hidden" name="checkIn" value={startDate} />
+              <input type="hidden" name="checkOut" value={endDate} />
+              <input type="hidden" name="adults" value={guests.adults} />
+              <input type="hidden" name="children" value={guests.children} />
+              <input type="hidden" name="rooms" value={guests.rooms} />
               <button
-                type="button"
+                type="submit"
                 className="search-btn"
                 disabled={isFutureService}
                 aria-label={isFutureService ? `${activeTab} booking coming soon` : "Check availability"}
+                formAction={isFutureService ? undefined : "/search"}
+                formMethod="get"
               >
                 {isFutureService ? <><Sparkles size={18} /> Coming soon</> : <><Search size={18} /> Check availability</>}
               </button>
-            </div>
+            </form>
 
             {activePopup && (
               <div className={`booking-popover ${activePopup}`} role="dialog" aria-label="Booking options">
@@ -353,16 +320,16 @@ export default function Home() {
           </div>
           <div className="filter-row">
             <div className="filters">
-              {["All", "Apartment", "Resort", "Hotel", "Eco Resort"].map((item) => (
+              {["All", "Resort", "Hotel", "Eco Resort"].map((item) => (
                 <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{item}</button>
               ))}
             </div>
-            <a href="https://bookmyroom.site/hotels/" target="_blank">See all stays <ArrowRight size={15} /></a>
+            <a href="/search">See all stays <ArrowRight size={15} /></a>
           </div>
           <div className="stay-grid">
             {visibleStays.map((stay, index) => (
               <article className="stay-card" key={stay.name}>
-                <img src={stay.image} alt={stay.name} />
+                <Image src={stay.image?.url ?? assets.hero} alt={stay.image?.altText ?? `${stay.name} approved media awaiting upload`} width={stay.image?.width ?? 1600} height={stay.image?.height ?? 1000} sizes="(max-width: 760px) 100vw, (max-width: 1120px) 50vw, 33vw" />
                 <div className="card-shade" />
                 <button
                   className={liked.includes(index) ? "heart liked" : "heart"}
@@ -370,14 +337,15 @@ export default function Home() {
                   aria-label={`Save ${stay.name}`}
                 ><Heart size={17} /></button>
                 <div className="card-content">
-                  <span className="card-type">{stay.type}</span>
-                  <h3>{stay.name}</h3>
+                  <span className="card-type">{stay.propertyType}</span>
+                  <h3><a href={`/properties/${stay.slug}`}>{stay.name}</a></h3>
                   <p><MapPin size={13} /> {stay.place}</p>
                   <div className="amenities"><span><Users />2–5 Guests</span><span><BedDouble />1–3 Beds</span></div>
-                  <div className="price-row"><strong>{stay.price}<small>/night</small></strong><span><Star size={13} fill="currentColor" /> {stay.rating}</span></div>
+                  <div className="price-row"><strong>{stay.startingPriceMinorUnits === null ? "Choose dates" : formatBdtMinorUnits(stay.startingPriceMinorUnits)}<small>{stay.startingPriceMinorUnits === null ? "" : "/night"}</small></strong><span>{stay.ratingCount > 0 && stay.rating !== null ? <><Star size={13} fill="currentColor" /> {stay.rating}</> : "New listing"}</span></div>
                 </div>
               </article>
             ))}
+            {visibleStays.length === 0 && <div className="truthful-empty"><strong>{discoveryError ? "The approved catalog is temporarily unavailable." : "Approved stays will appear here."}</strong><span>We do not use sample prices, ratings or properties. Search results come only from published catalog records.</span><a href="/search">Search the live catalog <ArrowRight size={15} /></a></div>}
           </div>
         </section>
 
@@ -398,10 +366,10 @@ export default function Home() {
               ))}
             </div>
             <div className="feature-collage">
-              <img className="collage-main" src={assets.about} alt="A beautiful Bangladesh destination" />
-              <img className="collage-small" src={destinations[1][1]} alt="Sreemangal landscape" />
-              <span className="rating-chip"><Star size={14} fill="currentColor" /> 4.9 average rating</span>
-              <span className="booking-chip"><b>100+</b> places to discover</span>
+              <Image className="collage-main" src={assets.about} alt="Abstract landscape while approved destination media is prepared" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 50vw" />
+              <Image className="collage-small" src={assets.hero} alt="Approved destination media is being prepared" width={1600} height={1000} sizes="(max-width: 760px) 50vw, 25vw" />
+              <span className="rating-chip"><ShieldCheck size={14} /> Verified catalog only</span>
+              <span className="booking-chip"><b>Real</b> listings after review</span>
             </div>
           </div>
         </section>
@@ -409,19 +377,20 @@ export default function Home() {
         <section className="destinations section" id="destinations">
           <div className="section-heading split">
             <div><span className="section-kicker">VACATION SPOTS</span><h2>Top destinations,<br />closer than you think.</h2></div>
-            <div><p>From mangrove forests to tea-covered hills and coral islands, find a stay at the heart of Bangladesh&apos;s most remarkable places.</p><span className="future-note">Destination stay pages coming soon</span></div>
+            <div><p>Published destination guides and their approved stays appear only after content and media review.</p><a href="/search" className="future-note">Browse approved stays</a></div>
           </div>
           <div className="destination-carousel">
             <div className="destination-strip" ref={destinationScrollRef}>
-              {destinations.map(([name, image], index) => (
-                <article className="destination-card featured" key={name}>
-                  <img src={image} alt={name} />
+              {destinations.map((destination, index) => (
+                <article className="destination-card featured" key={destination.id}>
+                  <Image src={destination.image?.url ?? assets.hero} alt={destination.image?.altText ?? `${destination.name} approved media awaiting upload`} width={destination.image?.width ?? 1600} height={destination.image?.height ?? 1000} sizes="(max-width: 760px) 86vw, 31vw" />
                   <div className="destination-overlay" />
                   <span>0{index + 1}</span>
-                  <h3>{name}</h3>
-                  <button aria-label={`Explore ${name}`}><ArrowRight /></button>
+                  <h3>{destination.name}</h3>
+                  <a href={`/destinations/${destination.slug}`} aria-label={`Explore ${destination.name}`}><ArrowRight /></a>
                 </article>
               ))}
+              {destinations.length === 0 && <div className="truthful-empty"><strong>Destination guides await verified launch content.</strong><span>No launch districts or destination imagery have been invented.</span></div>}
             </div>
             <button type="button" className="carousel-control prev" onClick={() => scrollDestinations(-1)} aria-label="Previous destinations"><ChevronLeft /></button>
             <button type="button" className="carousel-control next" onClick={() => scrollDestinations(1)} aria-label="Next destinations"><ChevronRight /></button>
@@ -429,35 +398,34 @@ export default function Home() {
         </section>
 
         <section className="award-section" id="cars">
-          <img className="award-bg" src={assets.award} alt="A premium resort in Bangladesh" />
+          <Image className="award-bg" src={assets.award} alt="Abstract landscape while approved journey media is prepared" width={1600} height={1000} sizes="100vw" />
           <div className="award-shade" />
           <div className="award-copy">
             <span className="section-kicker light">PLAN THE WHOLE JOURNEY</span>
             <h2>Stay. Tour.<br />Drive. Discover.</h2>
-            <p>Book trusted stays today. Tour and car services will open only after their inventory is verified.</p>
+            <p>Search approved stays today. Booking, tour and car services will open only after their safety and inventory gates are verified.</p>
             <div className="mini-destinations">
-              {destinations.slice(0, 4).map(([name, image], i) => <img className={i === 0 ? "selected" : ""} key={name} src={image} alt={name} />)}
+              {destinations.slice(0, 4).map((destination, i) => <Image className={i === 0 ? "selected" : ""} key={destination.id} src={destination.image?.url ?? assets.hero} alt={destination.image?.altText ?? destination.name} width={destination.image?.width ?? 1600} height={destination.image?.height ?? 1000} sizes="72px" />)}
             </div>
           </div>
           <div className="floating-booking">
-            <img src="https://bookmyroom.site/wp-content/uploads/2024/12/Sedan-car.jpeg" alt="Sedan car" />
-            <div className="floating-info"><span className="tiny-label">FUTURE SERVICE</span><h3>Sedan Car</h3><p><Users size={13} /> 5 persons <span>·</span> 3 bags <span>·</span> Automatic</p><div><strong>Coming soon</strong></div><button type="button" aria-label="Car service coming soon" disabled>Coming soon</button></div>
+            <Image src={assets.hero} alt="Car service visual awaiting approval" width={1600} height={1000} sizes="(max-width: 760px) 100vw, 450px" />
+            <div className="floating-info"><span className="tiny-label">FUTURE SERVICE</span><h3>Car rental</h3><p>Supplier, inventory and operating rules are not yet approved.</p><div><strong>Coming soon</strong></div><button type="button" aria-label="Car service coming soon" disabled>Coming soon</button></div>
           </div>
         </section>
 
         <section className="testimonial section">
           <svg className="scribble top" viewBox="0 0 700 160" aria-hidden="true"><path d="M-10 146c87-75 145-21 214-96 50-55 110 9 180-40 69-48 175 10 326-16" /></svg>
           <svg className="scribble bottom" viewBox="0 0 700 160" aria-hidden="true"><path d="M-10 146c87-75 145-21 214-96 50-55 110 9 180-40 69-48 175 10 326-16" /></svg>
-          <div className="section-heading center compact"><span className="section-kicker">TRAVELER STORIES</span><h2>What our guests say</h2><p>Real journeys, warm stays and memories made across Bangladesh.</p></div>
-          <blockquote>“Finding a stay for our Sylhet trip was effortless. The options were clear, the booking felt simple, and everything we needed was right there.”</blockquote>
-          <div className="testimonial-nav"><button><ChevronLeft /></button><div className="guest-avatars"><img src="https://i.pravatar.cc/80?img=47" alt="Guest" /><img className="active" src="https://i.pravatar.cc/80?img=12" alt="Guest" /><img src="https://i.pravatar.cc/80?img=32" alt="Guest" /></div><button><ChevronRight /></button></div>
-          <strong className="guest-name">Rakib Hasan</strong><span className="guest-place">Dhaka, Bangladesh</span><div className="stars">★★★★★</div>
+          <div className="section-heading center compact"><span className="section-kicker">TRAVELER STORIES</span><h2>Verified reviews, when earned</h2><p>Only eligible completed stays can produce a public review.</p></div>
+          <blockquote>Guest stories will appear here after the verified-stay review workflow is implemented and real reviews pass moderation.</blockquote>
+          <span className="guest-place">No sample identities, avatars, quotes or ratings are published.</span>
         </section>
 
         <footer id="footer">
-          <div className="footer-brand"><img src={assets.logo} alt="Book My Room" /><p>Your trusted starting point for stays across Bangladesh, with more travel services coming later.</p></div>
+          <div className="footer-brand"><Image src={assets.logo} alt="Book My Room" width={225} height={130} /><p>Your trusted starting point for stays across Bangladesh, with more travel services coming later.</p></div>
           <div><span>Explore</span><a href="#stays">Hotels</a><a href="#destinations">Destinations</a><a href="#cars">Cars · Coming soon</a></div>
-          <div><span>Company</span><a href="#about">About us</a><a href="https://bookmyroom.site/" target="_blank">Original website</a><a href="#home">Become a partner</a></div>
+          <div><span>Company</span><a href="#about">About us</a><a href="/vendor/onboarding">Become a partner</a><a href="/auth">Account access</a></div>
           <div className="footer-cta"><span>Ready to go?</span><h3>Find your next stay.</h3><button>Start exploring <ArrowRight size={16} /></button></div>
           <p className="copyright">© 2026 Book My Room. Crafted for journeys across Bangladesh.</p>
         </footer>

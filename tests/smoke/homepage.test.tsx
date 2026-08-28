@@ -17,7 +17,7 @@ describe("homepage baseline", () => {
     expect(screen.getByRole("heading", { name: /Where comfort meets discovery/i })).toBeDefined();
     expect(screen.getAllByAltText("Book My Room")).toHaveLength(2);
     for (const logo of screen.getAllByAltText("Book My Room")) {
-      expect(logo.getAttribute("src")).toBe("/bookmyroom-dark-no-bg.png");
+      expect(decodeURIComponent(logo.getAttribute("src") ?? "")).toContain("/bookmyroom-dark-no-bg.png");
     }
   });
 

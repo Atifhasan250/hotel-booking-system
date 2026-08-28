@@ -5,21 +5,21 @@ Release 1. Update evidence only after real checks.
 
 | Requirement group | Canonical detail | Milestone(s) | Status |
 |---|---|---:|---|
-| Multi-district stay marketplace | PROJECT-SPEC §§1–2,4 | M2–M4 | M2 complete; M3-M4 planned |
-| Location/date/guest search | §4; ARCHITECTURE availability | M3–M4 | M3 complete; M4 planned |
-| All required filters and sorts | PROJECT-SPEC §4 | M3 | M3 complete |
-| Budget hotels / Eco Resorts | PROJECT-SPEC §4 homepage | M3–M4 | M3 complete; M4 planned |
+| Multi-district stay marketplace | PROJECT-SPEC §§1–2,4 | M2–M4 | M2 complete; M3 atomic repair verified but overall partial; M4 partial |
+| Location/date/guest search | §4; ARCHITECTURE availability | M3–M4 | atomic holds verified; occupancy/hold-aware search incomplete; M4 public search partial |
+| All required filters and sorts | PROJECT-SPEC §4 | M3 | verification gap; public UI does not yet expose the full required set |
+| Budget hotels / Eco Resorts | PROJECT-SPEC §4 homepage | M3–M4 | published-data queries implemented; launch content pending |
 | Destinations / offers / reviews | §§4,7,9 | M4,M7,M9 | planned |
 | WhatsApp / newsletter | §11 | M10 | planned |
 | Property gallery/details/rooms | §4; DATA-MODEL catalog | M2,M4 | M2 complete; M4 planned |
-| Calendar/live availability/price | §§4–5; ADR-0003 | M3–M5 | M3 complete; M4-M5 planned |
+| Calendar/live availability/price | §§4–5; ADR-0003 | M3–M5 | concurrent no-oversell repair independently verified; broader M3 search/calendar acceptance partial; M4 uses conservative starting-price semantics |
 | Map/nearby/policies/share/contact | §4 | M2,M4 | planned |
 | Booking/guest/confirmation/history | §§5,7 | M5–M7 | planned |
 | Invoice download | §§5,7; DATA-MODEL | M5,M7 | planned |
 | Email and SMS | §11 | M10 | planned |
 | EPS payment | §6 | M6 | planned / external contract |
 | Customer dashboard (all items) | §7 | M1,M5,M7 | planned |
-| Vendor dashboard (all items) | §8 | M1–M3,M8 | M1-M3 complete; M8 planned |
+| Vendor dashboard (all items) | §8 | M1–M3,M8 | M1-M2 complete; M3 calendar partial; M8 planned |
 | Admin control (all items) | §9 | M1,M2,M9 | M1-M2 complete; M9 planned |
 | Commission | §§9–10; DATA-MODEL finance | M9 | planned |
 | Featured/ads/badges/subscriptions | §10 | M9 | planned |
@@ -87,3 +87,26 @@ Release 1. Update evidence only after real checks.
 
 - Search and Availability: Atomic holds capability, rates, offers, vendor calendar UI and public search UI.
 - Checks: `npm run typecheck`, `npm run lint`, `vitest run tests/integration` (availability, pricing, search), `playwright test tests/e2e` (vendor-calendar, search) all passed. The owner explicitly authorized completion.
+- 2026-08-28 correction: conditional per-night inventory version writes and gated real-replica races now prove
+  no-oversell; idempotency and booking uniqueness regressions pass. The independent verifier approved this atomic
+  repair but rejected overall M3 completion because hold/occupancy-aware search, total-price pagination/sorts, full
+  filter/calendar UI, query-plan evidence, and accessibility evidence remain incomplete.
+
+## M4 partial evidence and M3 correction — 2026-08-28
+
+- Public catalog reads expose only published properties/destinations, active rooms, verified nearby places, approved
+  environment-owned ImageKit media, review-safe empty states pending M7 provenance, and integer-minor-unit starting rates. Dynamic property
+  and destination routes, truthful conditional structured data, canonical/OG metadata, robots/sitemap, noindex search,
+  and resilient empty/error/not-found states are established.
+- Homepage data is no longer hard-coded business truth. Reference-host images, placeholder avatars/profiles, invented
+  testimonials, ratings, properties and prices are removed; responsive Next Image and a clearly labeled local media
+  fallback preserve layout until owner-approved ImageKit assets exist.
+- Maker checks: typecheck and lint exit 0; full Vitest 23/77; integration 9/45; Playwright 17/17 across public,
+  auth, vendor and admin regression scenarios. No build was run. Independent review first found a P1 Mongo identity
+  mismatch; canonical `_id` mapping and related safeguards were corrected, and fresh scoped re-verification returned
+  `APPROVE` (9/9 focused unit/SEO/smoke and 12/12 focused integration). The owner approved this update on 2026-08-28.
+  Overall M4 remains partial because the broader homepage/detail/filter/a11y/performance acceptance surface and
+  controlled content inputs are incomplete and the independent verifier did not approve milestone completion.
+- Correction: the original sequential test could not support concurrent/atomic acceptance. Conditional per-night
+  version writes and real concurrent replica-set tests now pass independent atomic verification. Overall M3 remains
+  partial for the separately recorded search/UI/query-plan/accessibility gaps.

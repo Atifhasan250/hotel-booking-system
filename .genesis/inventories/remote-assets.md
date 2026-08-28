@@ -2,6 +2,14 @@
 
 Recorded: 2026-08-27 during M0. This is migration input, not proof of ownership or authorization.
 
+## M4 removal status — 2026-08-28
+
+All inventoried `bookmyroom.site/wp-content` and placeholder-avatar URLs were removed from application rendering.
+Hard-coded sample property/destination/testimonial records were removed with them. Until the owner supplies rights-
+approved launch media and the assets are uploaded through the environment-scoped ImageKit workflow, the homepage
+uses `public/media-awaiting-approval.svg` as an explicit local fallback and public catalog routes render only approved
+ImageKit records. This is removal evidence, not a claim that production media migration is complete.
+
 ## Verdict
 
 `app/page.tsx` contains 19 remote image occurrences representing 17 unique image URLs: 16 occurrences from the

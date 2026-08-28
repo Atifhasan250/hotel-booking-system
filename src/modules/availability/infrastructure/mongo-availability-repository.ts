@@ -38,6 +38,20 @@ export class MongoAvailabilityRepository implements AvailabilityRepository {
     return result.acknowledged;
   }
 
+  async claimInventoryDayVersion(inventoryDay: InventoryDay, at: Date): Promise<boolean> {
+    const result = await this.inventoryDays.updateOne(
+      {
+        _id: inventoryDay._id,
+        roomTypeId: inventoryDay.roomTypeId,
+        localDate: inventoryDay.localDate,
+        version: inventoryDay.version,
+      },
+      { $inc: { version: 1 }, $set: { updatedAt: at.toISOString() } },
+      { session: this.transactions.current() },
+    );
+    return result.modifiedCount === 1;
+  }
+
   async createHoldIfAbsent(hold: InventoryHold) {
     const result = await this.inventoryHolds.findOneAndUpdate(
       { idempotencyKey: hold.idempotencyKey },
@@ -46,6 +60,10 @@ export class MongoAvailabilityRepository implements AvailabilityRepository {
     );
     if (!result.value) throw new Error("Hold upsert did not return a document");
     return { hold: result.value, created: result.lastErrorObject?.upserted !== undefined };
+  }
+
+  async findHoldByIdempotencyKey(idempotencyKey: string): Promise<InventoryHold | null> {
+    return this.inventoryHolds.findOne({ idempotencyKey }, { session: this.transactions.current() });
   }
 
   async findHoldByBookingRef(bookingRef: string): Promise<InventoryHold | null> {
@@ -79,7 +97,7 @@ export function ensureAvailabilityIndexes(db: Db): Promise<void> {
     // Range scan support for availability checks.
     db.collection("inventoryDays").createIndex({ roomTypeId: 1, localDate: 1, stopSell: 1 }),
     // Hold lookups by booking reference.
-    db.collection("inventoryHolds").createIndex({ bookingRef: 1 }),
+    db.collection("inventoryHolds").createIndex({ bookingRef: 1 }, { unique: true }),
     // Idempotency key uniqueness for hold creation.
     db.collection("inventoryHolds").createIndex({ idempotencyKey: 1 }, { unique: true }),
     // Overlapping-hold check: room type, status, and dates array.

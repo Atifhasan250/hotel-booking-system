@@ -158,3 +158,8 @@ product-market evidence. Rejected for Release 1; module contracts keep later ext
   M1 is complete and the next governed boundary is M2 existence pre-flight.
 - 2026-08-27 — M2 implemented catalog, vendor onboarding, and ImageKit signer adapter. Tests were run and fresh independent verification returned `APPROVE` with no P0/P1 finding. The owner explicitly authorized completion; M2 is complete and the next governed boundary is M3 existence pre-flight.
 - 2026-08-27 — M3 implemented availability and pricing modules with atomic inventory holds support, rate overrides, offers, search API routes, and vendor calendar / search public UIs. Typecheck, lint, integration and e2e tests were verified. M3 is completed pending owner authorization for M4 pre-flight.
+- 2026-08-28 — M3's prior atomic claim was reopened, repaired with conditional per-night inventory version writes,
+  and independently approved against gated real-replica concurrency. Overall M3 remains partial/rejected because
+  search, total-price pagination/sorts, required UI, query-plan and accessibility acceptance remain incomplete. The
+  owner accepts M4's current partial update and defers its remaining verification, requesting M5 next; this records
+  sequencing intent but does not mark M3/M4 complete or authorize bypassing unresolved M5 product decisions.

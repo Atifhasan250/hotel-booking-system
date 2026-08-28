@@ -217,6 +217,118 @@ describe("Availability integration — real MongoDB replica set", () => {
     expect(rejected).toBe(6 - capacity);
   });
 
+  it("CREATE_HOLD prevents oversell under gated concurrent transactions", async () => {
+    const roomId = `room-${randomUUID()}`;
+    const capacity = 3;
+    const attempts = 12;
+    await setInventory(roomId, ["2027-03-10", "2027-03-11"], capacity);
+
+    let releaseStart!: () => void;
+    const start = new Promise<void>((resolve) => { releaseStart = resolve; });
+    const pending = Array.from({ length: attempts }, async (_, index) => {
+      await start;
+      return service.mutate(null, {
+        action: "CREATE_HOLD",
+        idempotencyKey: `concurrent-ik-${randomUUID()}-${index}`,
+        bookingRef: `concurrent-bk-${randomUUID()}-${index}`,
+        roomTypeId: roomId,
+        checkInDate: "2027-03-10",
+        checkOutDate: "2027-03-12",
+        quantity: 1,
+        holdDurationSeconds: 900,
+      }, ctx());
+    });
+
+    releaseStart();
+    const settled = await Promise.allSettled(pending);
+    const fulfilled = settled.filter((result) => result.status === "fulfilled");
+    const rejected = settled.filter((result) => result.status === "rejected");
+    const activeHolds = await db.collection("inventoryHolds").find({ roomTypeId: roomId, status: "ACTIVE" }).toArray();
+
+    expect(fulfilled).toHaveLength(capacity);
+    expect(rejected).toHaveLength(attempts - capacity);
+    expect(activeHolds.reduce((sum, hold) => sum + Number(hold.quantity), 0)).toBe(capacity);
+    expect(activeHolds.every((hold) => hold.localDates.includes("2027-03-10") && hold.localDates.includes("2027-03-11"))).toBe(true);
+  });
+
+  it("CREATE_HOLD binds an idempotency key to the original request", async () => {
+    const roomId = `room-${randomUUID()}`;
+    await setInventory(roomId, ["2027-03-20"], 2);
+    const idempotencyKey = `bound-ik-${randomUUID()}`;
+    const bookingRef = `bound-bk-${randomUUID()}`;
+
+    await service.mutate(null, {
+      action: "CREATE_HOLD",
+      idempotencyKey,
+      bookingRef,
+      roomTypeId: roomId,
+      checkInDate: "2027-03-20",
+      checkOutDate: "2027-03-21",
+      quantity: 1,
+      holdDurationSeconds: 900,
+    }, ctx());
+
+    await expect(service.mutate(null, {
+      action: "CREATE_HOLD",
+      idempotencyKey,
+      bookingRef: `${bookingRef}-changed`,
+      roomTypeId: roomId,
+      checkInDate: "2027-03-20",
+      checkOutDate: "2027-03-21",
+      quantity: 1,
+      holdDurationSeconds: 900,
+    }, ctx())).rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+  });
+
+  it("CREATE_HOLD converges concurrent same-key retries to one hold", async () => {
+    const roomId = `room-${randomUUID()}`;
+    await setInventory(roomId, ["2027-03-25"], 1);
+    const input = {
+      action: "CREATE_HOLD" as const,
+      idempotencyKey: `retry-ik-${randomUUID()}`,
+      bookingRef: `retry-bk-${randomUUID()}`,
+      roomTypeId: roomId,
+      checkInDate: "2027-03-25",
+      checkOutDate: "2027-03-26",
+      quantity: 1,
+      holdDurationSeconds: 900,
+    };
+
+    let releaseStart!: () => void;
+    const start = new Promise<void>((resolve) => { releaseStart = resolve; });
+    const calls = Array.from({ length: 4 }, async () => {
+      await start;
+      return service.mutate(null, input, ctx()) as Promise<{ hold: { _id: string }; idempotentReplay: boolean }>;
+    });
+    releaseStart();
+    const results = await Promise.all(calls);
+    const holdIds = new Set(results.map((result) => result.hold._id));
+
+    expect(holdIds.size).toBe(1);
+    expect(await db.collection("inventoryHolds").countDocuments({ idempotencyKey: input.idempotencyKey })).toBe(1);
+    expect(results.filter((result) => result.idempotentReplay)).toHaveLength(3);
+  });
+
+  it("CREATE_HOLD rejects a second idempotency key for the same booking", async () => {
+    const roomId = `room-${randomUUID()}`;
+    await setInventory(roomId, ["2027-03-27"], 2);
+    const bookingRef = `one-hold-bk-${randomUUID()}`;
+    const base = {
+      action: "CREATE_HOLD" as const,
+      bookingRef,
+      roomTypeId: roomId,
+      checkInDate: "2027-03-27",
+      checkOutDate: "2027-03-28",
+      quantity: 1,
+      holdDurationSeconds: 900,
+    };
+
+    await service.mutate(null, { ...base, idempotencyKey: `first-${randomUUID()}` }, ctx());
+    await expect(service.mutate(null, { ...base, idempotencyKey: `second-${randomUUID()}` }, ctx()))
+      .rejects.toMatchObject({ code: "IDEMPOTENCY_CONFLICT" });
+    expect(await db.collection("inventoryHolds").countDocuments({ bookingRef })).toBe(1);
+  });
+
   it("Expired holds do not block new holds for the same dates", async () => {
     const roomId = `room-${randomUUID()}`;
     await setInventory(roomId, ["2027-04-01"], 2);

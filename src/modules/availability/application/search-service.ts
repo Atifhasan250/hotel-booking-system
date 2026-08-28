@@ -2,6 +2,7 @@ import "server-only";
 
 import type { Db } from "mongodb";
 import { getMongoDatabase } from "../../../platform/db/mongo-client";
+import { getServerEnv } from "../../../platform/config/server-env";
 
 // ─── Search result shape returned by the search API ────────────────────────
 
@@ -22,9 +23,16 @@ export interface SearchResultProperty {
   /** Starting price in BDT integer minor units (paise-equivalent). */
   startingPrice: number;
   currency: "BDT";
-  isAvailable: boolean;
+  /** Never claim AVAILABLE here; authoritative availability is revalidated by the hold use case. */
+  availabilityState: "DATES_REQUIRED" | "UNAVAILABLE" | "REVALIDATION_REQUIRED";
   offers: Array<{ name: string; discountValue: number; discountType: "PERCENTAGE" | "FIXED" }>;
-  thumbnailUrl: string | null;
+  thumbnail: {
+    id: string;
+    url: string;
+    width: number;
+    height: number;
+    altText: string;
+  } | null;
 }
 
 export interface SearchQuery {
@@ -47,7 +55,7 @@ export interface SearchQuery {
 // ─── Search service ─────────────────────────────────────────────────────────
 
 export class SearchService {
-  constructor(private readonly db: Db) {}
+  constructor(private readonly db: Db, private readonly imageKitUrlEndpoint?: string) {}
 
   async search(query: SearchQuery): Promise<{
     data: SearchResultProperty[];
@@ -57,7 +65,7 @@ export class SearchService {
 
     // Location / destination filter (district name, area, or slug).
     if (query.destination) {
-      const dest = query.destination.trim();
+      const dest = query.destination.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.$or = [
         { districtId: { $regex: dest, $options: "i" } },
         { "location.area": { $regex: dest, $options: "i" } },
@@ -197,7 +205,7 @@ export class SearchService {
 
     // ── Fetch thumbnail media ─────────────────────────────────────────────────
     const mediaDocs = await this.db
-      .collection<{ _id: string; ownerId: string; url: string; sortOrder: number }>("mediaAssets")
+      .collection<{ _id: string; id?: string; ownerId: string; url: string; width: number; height: number; altText: string; sortOrder: number }>("mediaAssets")
       .find({
         ownerId: { $in: propertyIds },
         ownerType: "PROPERTY",
@@ -208,24 +216,18 @@ export class SearchService {
       .toArray();
 
     // Keep only the first (lowest sortOrder) media per property.
-    const thumbnailByProperty = new Map<string, string>();
+    const thumbnailByProperty = new Map<string, { id: string; url: string; width: number; height: number; altText: string }>();
     for (const m of mediaDocs) {
+      if (!this.isManagedMedia(m.url)) continue;
       if (!thumbnailByProperty.has(m.ownerId)) {
-        thumbnailByProperty.set(m.ownerId, m.url);
+        thumbnailByProperty.set(m.ownerId, { id: m.id ?? m._id, url: m.url, width: m.width, height: m.height, altText: m.altText });
       }
     }
 
     // ── Fetch rating aggregates ───────────────────────────────────────────────
-    const ratingDocs = await this.db
-      .collection<{ _id: string; count: number; average: number }>("reviewAggregates")
-      .find({ _id: { $in: propertyIds } }, { projection: { count: 1, average: 1 } })
-      .toArray();
-    const ratingByProperty = new Map(ratingDocs.map((r) => [r._id, r]));
-
     // ── Assemble results ──────────────────────────────────────────────────────
     let results: SearchResultProperty[] = properties.map((p) => {
       const startingPrice = startingPriceByProperty.get(p._id) ?? 0;
-      const rating = ratingByProperty.get(p._id);
       const propertyOffers = offersByProperty.get(p._id) ?? [];
 
       return {
@@ -237,17 +239,20 @@ export class SearchService {
         districtId: p.districtId,
         location: { area: p.location.area, addressLine: p.location.addressLine },
         amenityKeys: p.amenityKeys,
-        rating: rating ? parseFloat(rating.average.toFixed(1)) : 0,
-        ratingCount: rating?.count ?? 0,
+        // M7 establishes verified-stay review provenance. Keep public rating fields empty until then.
+        rating: 0,
+        ratingCount: 0,
         startingPrice,
         currency: "BDT",
-        isAvailable: availablePropertyIds.has(p._id),
+        availabilityState: !query.checkIn || !query.checkOut
+          ? "DATES_REQUIRED"
+          : availablePropertyIds.has(p._id) ? "REVALIDATION_REQUIRED" : "UNAVAILABLE",
         offers: propertyOffers.map((o) => ({
           name: o.name,
           discountValue: o.discountValue,
           discountType: o.discountType,
         })),
-        thumbnailUrl: thumbnailByProperty.get(p._id) ?? null,
+        thumbnail: thumbnailByProperty.get(p._id) ?? null,
       };
     });
 
@@ -289,6 +294,18 @@ export class SearchService {
         return { createdAt: -1 };
     }
   }
+
+  private isManagedMedia(value: string): boolean {
+    if (!this.imageKitUrlEndpoint) return false;
+    try {
+      const base = new URL(this.imageKitUrlEndpoint);
+      const url = new URL(value);
+      const basePath = base.pathname.replace(/\/$/, "");
+      return url.protocol === "https:" && url.origin === base.origin && (url.pathname === basePath || url.pathname.startsWith(`${basePath}/`));
+    } catch {
+      return false;
+    }
+  }
 }
 
 // ─── Singleton factory ───────────────────────────────────────────────────────
@@ -297,7 +314,7 @@ let servicePromise: Promise<SearchService> | undefined;
 
 export function getSearchService(): Promise<SearchService> {
   servicePromise ??= getMongoDatabase()
-    .then((db) => new SearchService(db))
+    .then((db) => new SearchService(db, getServerEnv().IMAGEKIT_URL_ENDPOINT))
     .catch((error) => { servicePromise = undefined; throw error; });
   return servicePromise;
 }

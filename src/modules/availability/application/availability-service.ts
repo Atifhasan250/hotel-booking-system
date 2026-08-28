@@ -129,6 +129,24 @@ export class AvailabilityService {
     return this.deps.transactions.run(async () => {
       const lastNight = nightDates[nightDates.length - 1];
 
+      const replay = await this.deps.repository.findHoldByIdempotencyKey(input.idempotencyKey);
+      if (replay) {
+        const holdDurationMilliseconds = new Date(replay.expiresAt).getTime() - new Date(replay.createdAt).getTime();
+        const sameRequest = replay.bookingRef === input.bookingRef
+          && replay.roomTypeId === input.roomTypeId
+          && replay.quantity === input.quantity
+          && holdDurationMilliseconds === input.holdDurationSeconds * 1000
+          && replay.localDates.length === nightDates.length
+          && replay.localDates.every((date, index) => date === nightDates[index]);
+        if (!sameRequest) throw AvailabilityErrors.IDEMPOTENCY_CONFLICT();
+        return { hold: replay, idempotentReplay: true };
+      }
+
+      // One booking reference cannot own multiple holds under different idempotency keys.
+      if (await this.deps.repository.findHoldByBookingRef(input.bookingRef)) {
+        throw AvailabilityErrors.IDEMPOTENCY_CONFLICT();
+      }
+
       // 3. Read all inventory days for the stay range atomically within the transaction.
       const inventoryDays = await this.deps.repository.findInventoryDays(
         input.roomTypeId,
@@ -173,7 +191,17 @@ export class AvailabilityService {
         }
       }
 
-      // 6. Create the hold atomically; idempotency key prevents duplicates on replay.
+      // Conditionally write every shared inventory day before inserting the hold. Concurrent
+      // transactions that read the same versions now contend; MongoDB retries one transaction,
+      // which then re-reads active holds and cannot oversell the refreshed snapshot.
+      for (const date of nightDates) {
+        const day = dayByDate.get(date);
+        if (!day || !await this.deps.repository.claimInventoryDayVersion(day, now)) {
+          throw AvailabilityErrors.NOT_AVAILABLE(`Inventory changed while holding ${date}`);
+        }
+      }
+
+      // Create the hold atomically; idempotency key prevents duplicates on replay.
       const hold: InventoryHold = {
         _id: this.deps.ids.create(),
         bookingRef: input.bookingRef,

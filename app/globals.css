@@ -1339,7 +1339,7 @@ button {
   letter-spacing: -.03em;
 }
 
-.destination-card button {
+.destination-card>a {
   opacity: 0;
   position: absolute;
   right: 18px;
@@ -1354,8 +1354,8 @@ button {
   transition: opacity .25s;
 }
 
-.destination-card:hover button,
-.destination-card.featured button {
+.destination-card:hover>a,
+.destination-card.featured>a {
   opacity: 1;
 }
 
@@ -1998,7 +1998,7 @@ footer a {
     font-size: 25px;
   }
 
-  .destination-card button {
+  .destination-card>a {
     opacity: 1;
   }
 
@@ -2079,3 +2079,36 @@ footer a {
     transition-duration: .01ms !important;
   }
 }
+
+.truthful-empty {
+  grid-column: 1 / -1;
+  min-height: 250px;
+  padding: 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 13px;
+  border: 1px dashed rgba(18, 56, 45, .28);
+  border-radius: 20px;
+  text-align: center;
+  background: rgba(255, 255, 255, .58);
+}
+
+.truthful-empty strong { font: 750 24px var(--display); }
+.truthful-empty span { max-width: 620px; color: var(--muted); line-height: 1.65; }
+.truthful-empty a { min-height: 44px; padding: 0 18px; display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; background: var(--lime); font-size: 12px; font-weight: 800; }
+
+.route-loading,
+.route-error {
+  min-height: 100vh;
+  padding: 32px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: #f5f1e8;
+  background: #08271f;
+}
+.route-error h1 { margin: 12px 0; font: 750 clamp(36px, 7vw, 68px) "Manrope", sans-serif; }
+.route-error p { max-width: 600px; color: rgba(245,241,232,.7); }
+.route-error button { min-height: 46px; margin: 18px auto 0; padding: 0 20px; border: 0; border-radius: 999px; background: #dfff51; font-weight: 800; cursor: pointer; }

@@ -1,17 +1,26 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
-test("Customer can search for properties and filter/sort results", async ({ page }) => {
+test("customer search remains truthful, private to crawlers, and usable without catalog connectivity", async ({ page }) => {
   await page.goto("/search");
-  
-  // Wait for results to load
-  await page.waitForSelector("text=Search Results");
-  
-  // Verify UI elements
-  await expect(page.locator("text=Filters")).toBeVisible();
-  // Check select options exist on the page
-  await expect(page.locator("body")).toContainText("Price: Low to High");
-  
-  // Check that the mock results are rendered
-  await expect(page.locator("text=Grand Sylhet Hotel")).toBeVisible();
-  await expect(page.locator("text=Sreemangal Eco Resort")).toBeVisible();
+
+  await expect(page).toHaveTitle("Search stays | Book My Room");
+  await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, follow");
+  await expect(page.getByRole("heading", { name: "Find a stay that fits the journey." })).toBeVisible();
+  await expect(page.getByLabel("Destination or district")).toBeVisible();
+  await expect(page.getByLabel("Check in")).toBeVisible();
+  await expect(page.getByLabel("Check out")).toBeVisible();
+  await expect(page.getByLabel("Property type")).toContainText("Eco Resort");
+  await expect(page.locator('select[name="sort"]')).toContainText("Newest listings");
+  await expect(page.locator('select[name="sort"]')).not.toContainText("Top rated");
+  await expect(page.locator('select[name="sort"]')).not.toContainText("Most booked");
+  await expect(page.getByRole("button", { name: "Search approved stays" })).toBeVisible();
+
+  const bodyText = await page.locator("body").innerText();
+  expect(bodyText).not.toContain("Hotel 4");
+  expect(bodyText).not.toContain("৳0");
+});
+
+test("invalid date ranges render a clear server-side error state", async ({ page }) => {
+  await page.goto("/search?checkIn=2026-10-10&checkOut=2026-10-09");
+  await expect(page.getByRole("alert").filter({ hasText: "Check-out must follow check-in." })).toBeVisible();
 });
